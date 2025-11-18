@@ -1,0 +1,24 @@
+#Flask for the web server API
+
+flask
+
+#Core ML libraries
+
+tensorflow
+transformers
+torch
+
+#Data handling and processing
+
+numpy
+pandas
+datasets
+
+#Model loading utility
+
+safetensors
+
+#Metrics for training
+
+scikit-learn
+evaluate
