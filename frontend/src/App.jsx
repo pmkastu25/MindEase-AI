@@ -3,6 +3,7 @@ import {BrowserRouter, Routes, Route} from "react-router-dom"
 import Home from './pages/Home'
 import Recommendation from './pages/Recommendation'
 import TherapistConnect from './pages/TherapistConnect'
+import AnalyzeeMood from './pages/AnalyzeeMood'
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Home/>} />
         <Route path="/recommendation" element={<Recommendation/>} />
         <Route path="/therapistconnect" element={<TherapistConnect/>} />
+        <Route path="/analyze-mood" element={<AnalyzeeMood/>} />
       </Routes>
     </BrowserRouter>
   )
