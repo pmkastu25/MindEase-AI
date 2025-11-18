@@ -43,3 +43,27 @@ MindEase-AI is an Emotion Aware Well-Being Companion
 ```bash
   pip install -r requirements.txt
 ```
+
+
+## Run the Service
+ 
+1. Frontend
+
+```bash
+  cd MindEase-AI/frontend
+  npm run dev
+```
+
+2. Backend
+
+```bash
+  cd MindEase-AI/backend
+  npm start
+```
+
+3. ML Service
+
+```bash
+  cd MindEase-AI/ml_service/apps
+  python app.py
+```
