@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Recommendation from './pages/Recommendation'
 import TherapistConnect from './pages/TherapistConnect'
 import AnalyzeeMood from './pages/AnalyzeeMood'
+import ResponsiveAppBar from './components/ResponsiveAppBar'
 
 function App() {
 

@@ -1,13 +1,14 @@
 body{
-  background-color: white;
+  margin: 0;
+  padding: 0;
   color: black;
+  background: #3084a6;
+  background: linear-gradient(90deg,rgba(48, 132, 166, 1) 0%, rgba(172, 209, 227, 1) 100%, rgba(237, 221, 83, 1) 100%);
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  margin: 0;
 }
 
 .logo {

@@ -1,9 +1,11 @@
 import React from 'react';
+import ResponsiveAppBar from '../components/ResponsiveAppBar';
 
 function Home() {
     return ( 
         <>
-            <h1>Home</h1>
+        <ResponsiveAppBar/>
+        <h1>Home</h1>
         </>
      );
 }
