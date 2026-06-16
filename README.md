@@ -139,7 +139,26 @@ pip install -r requirements.txt
 python apps/app.py
 ```
 
-### 4. Client SPA Setup
+### 4. Rasa Conversational NLU Setup
+Ensure a clean **Python 3.10** environment is active (C++ Build Tools are required on Windows):
+```bash
+cd rasa-bot
+python -m venv venv
+venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+
+# Train the NLU models (creates model files)
+rasa train
+
+# Start the custom actions server (runs on port 5055)
+rasa run actions
+
+# Start core NLU webhook server (in a separate window - runs on port 5006)
+rasa run -m models --enable-api --cors "*" --port 5006
+```
+
+### 5. Client SPA Setup
 ```bash
 cd frontend
 npm install
