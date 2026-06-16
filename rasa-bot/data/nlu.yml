@@ -1,0 +1,623 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+    - hi there
+    - hello MindEase
+    - hey MindEase
+    - hi friend
+    - good to see you
+    - hey, what's up?
+    - hello there, how are you?
+    - hii
+    - heyy
+    - what's up
+    - yo
+    - hi bot
+    - hello bot
+    - hey mindease
+    - anyone there
+    - can we talk
+    - i need someone to talk to
+    - are you available
+    - can you help me
+    - hi again
+    - nice to meet you
+    - hey buddy
+    - greetings
+    - wassup
+    - hiiii
+    - helo
+    - hello ai
+    - hey assistant
+    - hi companion
+    - can we chat
+    - i feel like talking
+    - i want to talk
+    - hello my friend
+    - hi dear
+    - hey there buddy
+    - hello chatbot
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+    - talk soon
+    - catch you later
+    - take care
+    - I have to go
+    - signing off
+    - I will talk to you later
+    - see ya
+    - see you soon
+    - until next time
+    - see you
+    - i am leaving
+    - see you tomorrow
+    - bye bot
+    - thanks bye
+    - goodbye friend
+    - i need to go
+    - ttyl
+    - talk later
+    - farewell
+    - okay bye
+    - thanks for listening bye
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+    - absolutely
+    - sure
+    - definitely
+    - right
+    - yes please
+    - yeah
+    - sure thing
+    - sounds good
+    - I agree
+    - that's right
+    - exactly
+    - yep
+
+- intent: deny
+  examples: |
+    - no
+    - n
+    - never
+    - I don't think so
+    - don't like that
+    - no way
+    - not really
+    - nope
+    - nope, not really
+    - no, that didn't help
+    - I don't want that
+    - not at all
+    - absolutely not
+    - that's not what I mean
+    - no thank you
+    - I'm not interested
+    - nope, thanks
+    - not now
+
+- intent: thank_you
+  examples: |
+    - thank you
+    - thanks
+    - thanks a lot
+    - thank you so much
+    - appreciate it
+    - thanks for helping
+    - thanks for listening
+    - you helped me
+    - i appreciate your support
+    - grateful for your help
+    - thank you friend
+    - thanks buddy
+    - thanks mindease
+    - you are kind
+    - thanks for being here
+    - thank you chatbot
+    - really appreciate it
+    - many thanks
+    - thanks dear
+    - thank you for understanding
+
+- intent: mood_happy
+  examples: |
+    - perfect
+    - great
+    - amazing
+    - feeling like a king
+    - wonderful
+    - I am feeling very good
+    - I am great
+    - I am amazing
+    - I am going to save the world
+    - super stoked
+    - extremely good
+    - so so perfect
+    - so good
+    - so perfect
+    - I'm feeling awesome
+    - really happy today
+    - I couldn't be better
+    - I'm on top of the world
+    - this is a great day
+    - I'm feeling terrific
+    - I feel fantastic
+    - I'm very excited
+    - life feels good
+    - I'm really positive
+    - everything is going well
+    - i feel happy today
+    - i am doing great
+    - i feel amazing
+    - i am feeling good
+    - today was awesome
+    - i feel positive
+    - i feel energetic
+    - i am excited
+    - i am proud of myself
+    - i feel motivated
+    - things are going well
+    - i feel calm today
+    - i feel peaceful
+    - i feel cheerful
+    - i am smiling today
+    - my mood is good
+    - today is a good day
+    - i feel optimistic
+    - i feel confident today
+
+- intent: mood_sad
+  examples: |
+    - my day was horrible
+    - I am sad
+    - I don't feel very well
+    - I am disappointed
+    - super sad
+    - I'm so sad
+    - sad
+    - very sad
+    - unhappy
+    - not good
+    - not very good
+    - extremly sad
+    - so saad
+    - so sad
+    - I am not feeling good today
+    - I had a bad day
+    - not good feeling
+    - I feel low
+    - I feel terrible
+    - nothing is going right
+    - I am feeling down
+    - I'm not okay
+    - feeling a bit low
+    - everything feels heavy
+    - nothing helps
+    - this is a bad day
+    - I need support
+    - I'm feeling overwhelmed
+    - I'm stressed out
+    - I can't stop worrying
+    - I feel anxious
+    - I'm exhausted
+    - I'm in a dark mood
+    - today is too much
+    - I feel hopeless
+    - I just want to cry
+    - I'm not motivated
+    - my mood is awful
+    - I'm feeling drained
+    - I'm struggling right now
+    - I feel beat down
+    - I don't feel like myself
+    - I'm emotionally exhausted
+    - not in a good place
+    - I'm feeling discouraged
+    - i feel sad
+    - i am feeling low
+    - i want to cry
+    - i feel empty
+    - i feel broken
+    - i feel down today
+    - i feel numb
+    - i feel lonely and sad
+    - i don't feel okay
+    - i am hurt emotionally
+    - i feel miserable
+    - i feel depressed today
+    - my mood is very low
+    - i feel like crying all day
+    - i am mentally tired
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+    - are you real?
+    - are you an AI?
+    - is this a chatbot?
+    - is someone replying with AI?
+    - who am I chatting with?
+    - is this an automated response?
+    - are you a real person?
+    - are you a computer program?
+    - are you a virtual assistant?
+    - are you powered by AI?
+    - is this a bot or a person?
+
+- intent: anxiety
+  examples: |
+    - i feel anxious
+    - i am having anxiety
+    - i can't stop worrying
+    - my anxiety is getting worse
+    - i feel nervous all the time
+    - i feel restless
+    - i keep panicking
+    - i feel scared for no reason
+    - my chest feels heavy
+    - i feel overwhelmed
+    - i overthink everything
+    - my thoughts won't stop
+    - i feel uneasy
+    - i am constantly worried
+    - i feel tension in my body
+    - i feel mentally overwhelmed
+    - anxiety is affecting me
+    - i feel stressed and anxious
+    - my anxiety is high today
+    - i can't relax
+    - i feel shaky
+    - i feel panic inside
+    - i feel mentally unstable
+    - i am afraid something bad will happen
+    - i can't calm down
+    - i keep imagining worst case scenarios
+    - my mind races all day
+    - i am scared about the future
+    - anxiety is killing me
+    - i feel uncomfortable around people
+    - i feel social anxiety
+    - i panic before meetings
+    - i panic before exams
+    - i am anxious about my career
+    - i feel anxious at night
+    - i worry too much
+    - i keep thinking negatively
+    - i cannot control my thoughts
+    - my brain won't stop
+    - i feel fear constantly
+
+- intent: stress
+  examples: |
+    - i am stressed
+    - too much stress lately
+    - i feel pressure
+    - my workload is too much
+    - i cannot handle this stress
+    - i am mentally drained
+    - i feel burnt out
+    - work is stressing me out
+    - studies are stressing me
+    - i feel exhausted mentally
+    - i need a break
+    - i feel overloaded
+    - everything feels too much
+    - i am under pressure
+    - stress is affecting my sleep
+    - i feel tense
+    - i feel stressed every day
+    - i don't know how to manage stress
+    - i feel frustrated
+    - my mind is tired
+
+- intent: depression
+  examples: |
+    - i think i am depressed
+    - i don't enjoy anything anymore
+    - i feel hopeless every day
+    - life feels meaningless
+    - i have no motivation
+    - i feel emotionally dead
+    - i don't feel like getting up
+    - i hate my life
+    - i feel disconnected from everyone
+    - i feel empty inside
+    - nothing excites me anymore
+    - i don't want to do anything
+    - i feel dark thoughts all day
+    - i am losing interest in life
+    - i feel emotionally weak
+    - i feel like giving up
+    - i feel worthless
+    - everything feels pointless
+    - i am tired of life
+    - i don't feel alive anymore
+
+- intent: loneliness
+  examples: |
+    - i feel lonely
+    - nobody understands me
+    - i have no one to talk to
+    - i feel isolated
+    - i feel alone
+    - i don't have friends
+    - i feel ignored
+    - everyone leaves me
+    - i feel emotionally alone
+    - nobody cares about me
+    - i wish someone listened to me
+    - i feel disconnected
+    - i am always alone
+    - i feel abandoned
+    - i hate being alone
+    - i need emotional support
+    - i feel invisible
+    - no one talks to me
+    - i don't feel connected to anyone
+    - i feel left out
+
+- intent: sleep_problem
+  examples: |
+    - i can't sleep
+    - i have insomnia
+    - my sleep schedule is ruined
+    - i wake up at night
+    - i am not sleeping properly
+    - stress is affecting my sleep
+    - i cannot fall asleep
+    - my mind keeps me awake
+    - i barely sleep
+    - i feel tired but can't sleep
+    - i overthink at night
+    - my sleep quality is bad
+    - i feel sleepy during the day
+    - i keep waking up anxious
+    - i stay awake till morning
+    - i cannot rest
+    - i have nightmares
+    - i sleep too much
+    - i don't feel refreshed after sleep
+    - sleep has become difficult
+
+- intent: motivation_low
+  examples: |
+    - i have no motivation
+    - i cannot focus
+    - i don't feel productivity
+    - i feel lazy all day
+    - i don't want to work
+    - i don't feel like studying
+    - i feel unmotivated
+    - i cannot start anything
+    - i procrastinate a lot
+    - i lost interest in my goals
+    - i don't have energy
+    - i feel mentally stuck
+    - i can't get things done
+    - i feel tired mentally
+    - i don't know what to do anymore
+    - i feel directionless
+    - i don't feel inspired
+    - i feel drained
+    - i feel stuck in life
+    - i keep delaying everything
+
+- intent: overthinking
+  examples: |
+    - i overthink everything
+    - my thoughts won't stop
+    - i keep replaying conversations
+    - i think too much
+    - my brain never rests
+    - i cannot stop thinking
+    - i worry constantly
+    - i keep imagining bad situations
+    - i analyze everything too much
+    - i feel trapped in my thoughts
+    - my thoughts are exhausting
+    - i think negatively all day
+    - i keep doubting everything
+    - i stress over small things
+    - i overanalyze people
+    - i overthink at night
+    - i can't switch off my brain
+    - i am mentally overwhelmed
+    - i keep thinking about the past
+    - my mind is too loud
+
+- intent: self_doubt
+  examples: |
+    - i doubt myself
+    - i feel insecure
+    - i don't feel good enough
+    - i lack confidence
+    - i feel like a failure
+    - i think i am useless
+    - i compare myself to others
+    - i hate myself
+    - i don't believe in myself
+    - i feel inferior
+    - i feel incapable
+    - i think everyone is better than me
+    - i feel weak mentally
+    - i don't trust myself
+    - i feel unworthy
+    - i don't deserve happiness
+    - i am never confident
+    - i feel like i disappoint everyone
+    - i don't feel smart enough
+    - i criticize myself constantly
+
+- intent: study_stress
+  examples: |
+    - exams are stressing me out
+    - i am worried about my grades
+    - studies are overwhelming
+    - i cannot focus on studying
+    - i fear failing exams
+    - i am stressed about assignments
+    - i have academic pressure
+    - college stress is too much
+    - i am scared about my future
+    - i can't manage studies
+    - i feel pressure from academics
+    - i am mentally exhausted from studying
+    - i keep procrastinating studies
+    - i feel anxious before exams
+    - i don't understand anything while studying
+    - i feel burnt out from college
+    - i have too much syllabus left
+    - i feel like i will fail
+    - academic stress is affecting me
+    - i can't handle study pressure
+
+- intent: work_stress
+  examples: |
+    - work pressure is too much
+    - my job stresses me out
+    - i hate my workplace
+    - office stress is affecting me
+    - i feel burnt out from work
+    - i cannot manage deadlines
+    - work anxiety is increasing
+    - i feel exhausted after work
+    - my manager stresses me out
+    - work life is overwhelming
+    - i don't enjoy my job anymore
+    - i feel pressure at work
+    - i feel mentally tired from office
+    - i am overworked
+    - work is ruining my peace
+    - i feel anxious before meetings
+    - my workload is unbearable
+    - i don't have work life balance
+    - i feel trapped in my job
+    - i am constantly stressed because of work
+
+- intent: relationship_problem
+  examples: |
+    - i had a breakup
+    - my relationship is not going well
+    - my partner ignores me
+    - i feel heartbroken
+    - i miss someone
+    - my relationship stresses me
+    - i had an argument with my partner
+    - i feel emotionally hurt
+    - i don't feel loved
+    - i feel rejected
+    - my partner doesn't understand me
+    - i am struggling emotionally after breakup
+    - i can't move on
+    - i feel betrayed
+    - i keep thinking about my ex
+    - my relationship is toxic
+    - i feel emotionally attached
+    - i feel insecure in my relationship
+    - i feel jealous and anxious
+    - i am emotionally confused
+
+- intent: family_problem
+  examples: |
+    - my family doesn't understand me
+    - i fight with my parents often
+    - family pressure is too much
+    - my home environment is stressful
+    - my parents expect too much
+    - i feel emotionally unsupported at home
+    - my family situation affects my mental health
+    - i feel pressured by my family
+    - i don't feel heard at home
+    - my family keeps criticizing me
+    - i feel unsafe emotionally at home
+    - my family arguments stress me
+    - i don't feel connected to my family
+    - family expectations are overwhelming
+    - i feel lonely in my family
+    - my parents don't listen to me
+    - i feel emotionally distant from my family
+    - my family causes anxiety
+    - i feel emotionally exhausted at home
+    - i need support with family stress
+
+- intent: breathing_help
+  examples: |
+    - teach me breathing exercises
+    - help me calm down
+    - give me a breathing technique
+    - i need grounding exercises
+    - how do i relax
+    - help me breathe properly
+    - i want a calming exercise
+    - guide me through breathing
+    - help me with panic breathing
+    - breathing exercise please
+    - calm my anxiety
+    - i need relaxation help
+    - how can i control anxiety
+    - i need mindfulness help
+    - guide me to meditate
+    - help me reduce panic
+    - i need stress relief
+    - i want to feel calm
+    - give me relaxation tips
+    - help me with deep breathing
+
+- intent: ask_resources
+  examples: |
+    - suggest mental health resources
+    - recommend coping techniques
+    - what can help anxiety
+    - suggest self care tips
+    - give me mental wellness advice
+    - recommend meditation resources
+    - suggest journaling ideas
+    - what are healthy coping strategies
+    - recommend breathing exercises
+    - suggest mental health activities
+    - what can i do when stressed
+    - how can i improve mental health
+    - recommend support resources
+    - suggest calming activities
+    - how can i feel better mentally
+    - suggest stress management techniques
+    - recommend healthy habits
+    - suggest mindfulness activities
+    - what should i do when anxious
+    - can you suggest emotional support techniques

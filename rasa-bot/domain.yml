@@ -1,0 +1,55 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - thank_you
+  - mood_great
+  - mood_unhappy
+  - mood_happy
+  - mood_sad
+  - bot_challenge
+  - nlu_fallback
+  - anxiety
+  - stress
+  - depression
+  - loneliness
+  - sleep_problem
+  - motivation_low
+  - overthinking
+  - self_doubt
+  - study_stress
+  - work_stress
+  - relationship_problem
+  - family_problem
+  - breathing_help
+  - ask_resources
+
+actions:
+  - action_llm_response
+
+responses:
+  utter_greet:
+  - text: "Hey! How are you?"
+
+  utter_cheer_up:
+  - text: "I'm sorry you're feeling low. Here are a few gentle ideas to try:\n• Take a short break, breathe slowly, and notice one thing you can see, touch, and hear.\n• Read this article for coping with tough days: https://www.psychologytoday.com/us/blog/what-mentally-strong-people-dont-do/201807/how-stop-feeling-sad\n• You can also try a calming walk, warm drink, or a simple grounding exercise."
+    image: "https://i.imgur.com/nGF1K8f.jpg"
+
+  utter_did_that_help:
+  - text: "Did that help you?"
+
+  utter_happy:
+  - text: "Great, carry on!"
+
+  utter_goodbye:
+  - text: "Bye"
+
+  utter_iamabot:
+  - text: "I am a bot, powered by Rasa."
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

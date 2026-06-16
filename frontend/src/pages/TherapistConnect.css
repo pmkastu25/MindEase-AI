@@ -1,0 +1,238 @@
+.therapist-page { display: flex; flex-direction: column; gap: 20px; max-width: 1100px; }
+
+/* SEARCH + FILTER */
+.therapist-controls {
+  display: flex; gap: 12px;
+  align-items: center; flex-wrap: wrap;
+}
+.therapist-search { max-width: 300px; }
+
+/* MAP PLACEHOLDER */
+.map-card { padding: 20px; }
+.map-placeholder {
+  background: linear-gradient(135deg, var(--sage-pp), var(--lav-p));
+  border-radius: 14px;
+  height: 160px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.map-grid-bg { position: absolute; inset: 0; opacity: .25; }
+.map-pin {
+  position: absolute;
+  font-size: 22px;
+}
+.map-pin-1 { top: 28%; left: 34%; }
+.map-pin-2 { top: 54%; left: 59%; opacity: .7; font-size: 18px; }
+.map-pin-3 { top: 19%; left: 69%; opacity: .6; font-size: 18px; }
+.map-content { z-index: 1; text-align: center; }
+.map-emoji   { font-size: 30px; margin-bottom: 7px; }
+.map-title   { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--dk); }
+.map-sub     { font-size: 12px; color: var(--soft); margin-top: 4px; }
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.map-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.map-header p {
+  margin: 4px 0 0;
+  color: var(--soft);
+  font-size: 13px;
+}
+
+.map-search-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.map-wrapper {
+  width: 100%;
+  min-height: 420px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.therapist-map {
+  width: 100%;
+  height: 420px;
+}
+
+.popup-card {
+  max-width: 220px;
+}
+
+.popup-card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.popup-card p {
+  margin: 6px 0;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.popup-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.alert-message {
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(234, 88, 12, 0.12);
+  color: #c2410c;
+  font-size: 13px;
+}
+
+.btn-out {
+  border: 1px solid rgba(124,158,138,.4);
+  background: transparent;
+  color: var(--dk);
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-out:hover,
+.btn-pr:hover {
+  opacity: 0.94;
+}
+
+.btn-pr {
+  border: none;
+  background: var(--sage);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* DISTRESS ALERT */
+.distress-alert {
+  padding: 14px 22px;
+  background: linear-gradient(135deg, rgba(232,180,184,.12), rgba(155,142,196,.08));
+  border: 1.5px solid rgba(232,180,184,.35);
+  border-radius: 15px;
+  display: flex; align-items: center; gap: 13px;
+}
+.distress-icon  { font-size: 26px; flex-shrink: 0; }
+.distress-title { font-size: 13.5px; font-weight: 600; color: #c47880; margin-bottom: 3px; }
+.distress-text  { font-size: 12.5px; color: var(--mid); }
+
+/* THERAPIST GRID */
+.therapist-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+
+.therapist-card {
+  padding: 22px;
+  display: flex; gap: 15px; align-items: flex-start;
+  transition: var(--ease); cursor: default;
+}
+.therapist-card:hover { transform: translateY(-3px); box-shadow: var(--sh-hov); }
+.therapist-card.selected { border-color: rgba(124,158,138,.3); box-shadow: 0 8px 32px rgba(124,158,138,.18); }
+
+.th-avatar {
+  width: 52px; height: 52px;
+  border-radius: 15px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+  position: relative;
+}
+.avail-badge {
+  position: absolute; bottom: 2px; right: 2px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  border: 2px solid var(--card);
+}
+.avail-on  { background: #5db87a; }
+.avail-off { background: var(--faint); }
+
+.th-info { flex: 1; min-width: 0; }
+.th-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 3px; }
+.th-name     { font-weight: 600; font-size: 14.5px; color: var(--dk); }
+.verified-badge {
+  font-size: 10px; padding: 2px 7px;
+  border-radius: 20px;
+  background: var(--sage-pp);
+  color: var(--sage);
+  font-weight: 600;
+}
+.th-specialty { font-size: 11.5px; color: var(--sage); margin-bottom: 7px; }
+.th-rating    { font-size: 12px; color: var(--soft); margin-bottom: 10px; }
+.th-tags      { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 13px; }
+.th-tag {
+  font-size: 10px; padding: 3px 9px;
+  border-radius: 8px;
+  background: var(--sage-pp);
+  color: var(--sage); font-weight: 500;
+}
+.th-bottom { display: flex; justify-content: space-between; align-items: center; }
+.th-location { font-size: 11.5px; color: var(--faint); }
+.th-fee      { font-size: 12px; color: var(--sage); font-weight: 600; }
+.connect-btn {
+  padding: 8px 17px;
+  border-radius: 11px;
+  background: var(--sage);
+  color: #fff;
+  font-size: 12px; font-weight: 500;
+  border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: var(--ease);
+}
+.connect-btn:hover { background: var(--dk); }
+
+/* EXPANDED ACTIONS */
+.th-actions {
+  display: flex; gap: 8px;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+  animation: fadeUp .3s ease;
+}
+
+/* INFO CARDS */
+.info-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.info-card  { padding: 18px; }
+.info-icon  { font-size: 24px; margin-bottom: 8px; }
+.info-title { font-size: 13px; font-weight: 600; color: var(--dk); margin-bottom: 5px; }
+.info-desc  { font-size: 12px; color: var(--soft); line-height: 1.55; }
+
+@media (max-width: 860px) {
+  .therapist-grid { grid-template-columns: 1fr; }
+  .info-cards { grid-template-columns: 1fr; }
+  .therapist-controls { flex-direction: column; align-items: stretch; gap: 10px; }
+  .therapist-search { max-width: 100%; width: 100%; }
+  .map-search-row { flex-direction: column; align-items: stretch; }
+}
+
+@media (max-width: 580px) {
+  .distress-alert { flex-direction: column; text-align: center; gap: 10px; }
+  .th-avatar { margin-bottom: 8px; }
+  .therapist-card { flex-direction: column; align-items: center; text-align: center; }
+  .th-name-row { justify-content: center; }
+  .th-tags { justify-content: center; }
+  .th-bottom { flex-direction: column; gap: 10px; align-items: center; }
+  .th-actions { flex-direction: column; width: 100%; }
+  .th-actions a, .th-actions button { width: 100%; text-align: center; justify-content: center; }
+}

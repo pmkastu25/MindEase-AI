@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+env/
+.env/
+
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Rasa files
+.rasa/
+rasa-bot/models/
+rasa-bot/.rasa/
+
+# Build and IDE logs
+dist/
+build/
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+# Flask for web server API
+Flask==3.1.2
+Flask-CORS==4.0.2
+
+# Deep Learning & Models
+torch==2.9.1
+transformers==4.57.1
+safetensors==0.6.2
+
+# Numeric Utilities
+numpy==2.2.6
+requests==2.32.5
+typing_extensions==4.15.0
