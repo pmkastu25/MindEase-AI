@@ -160,3 +160,64 @@
     justify-content: center;
   }
 }
+
+/* ── CARD EDITING STYLES ── */
+.card-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0.5;
+  transition: var(--ease);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-edit-btn:hover {
+  opacity: 1;
+  background-color: rgba(124, 158, 138, 0.12);
+  transform: scale(1.1);
+}
+
+.entry-edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 5px;
+  margin-bottom: 12px;
+  animation: fadeUp 0.3s ease both;
+}
+
+.entry-edit-textarea {
+  width: 100%;
+  min-height: 90px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--rs);
+  padding: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--dk);
+  background: var(--warm);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.entry-edit-textarea:focus {
+  border-color: var(--sage-l);
+  box-shadow: 0 0 0 3px rgba(124, 158, 138, 0.12);
+  background: #fff;
+}
+
+body.dark-theme .entry-edit-textarea:focus {
+  background: #1c2621;
+}
+
+.entry-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

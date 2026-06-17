@@ -40,6 +40,9 @@ export default function Journal() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [prompt] = useState(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => { loadEntries(); }, []);
 
@@ -65,13 +68,23 @@ export default function Journal() {
       const res = await api.post("/journal", { text });
       const analysis = res.analysis || res;
       setResult(analysis);
-      setEntries(prev => [res.entry || { _id:Date.now(), text, ...analysis, createdAt:new Date().toISOString() }, ...prev]);
       setText("");
-      addNotification(
-        "New Journal Analyzed ✍️",
-        `Mood analyzed as "${analysis.mental_state || analysis.mood}". Confidence: ${Math.round(analysis.score * 100)}%.`,
-        "journal"
-      );
+
+      if (res.entry) {
+        setEntries(prev => [res.entry, ...prev]);
+        addNotification(
+          "New Journal Analyzed ✍️",
+          `Mood analyzed as "${analysis.mental_state || analysis.mood}". Confidence: ${Math.round(analysis.score * 100)}%.`,
+          "journal"
+        );
+      } else {
+        addNotification(
+          "Greeting Analyzed 👋",
+          "Greetings are analyzed for sentiment but not saved to your history.",
+          "info"
+        );
+      }
+      
       // ── Crisis middleware: PRIMARY check via is_crisis flag from ML service
       // This reliably catches Suicidal / Depression even when they're mood-aliased
       const shouldTriggerCrisis =
@@ -86,22 +99,35 @@ export default function Journal() {
     } catch {
       // Fallback local analysis
       const lower = text.toLowerCase();
+      const isLocalGreet = /^(hi|hello|hey|hey there|greetings|good morning|good afternoon|good evening|wassup|yo|hii|heyy)(?:\s|[.!?]|$)/i.test(text.trim());
+      
       let mood = "neutral";
-      if (lower.match(/happy|joy|wonderful|excited|love|great|fantastic|blessed/)) mood = "happy";
+      if (isLocalGreet) mood = "neutral";
+      else if (lower.match(/happy|joy|wonderful|excited|love|great|fantastic|blessed/)) mood = "happy";
       else if (lower.match(/sad|depress|cry|lonely|hurt|hopeless/)) mood = "sad";
       else if (lower.match(/anxi|stress|worry|nervous|panic|overwhelm/)) mood = "anxious";
       else if (lower.match(/angry|furious|frustrated|mad|rage/)) mood = "angry";
       else if (lower.match(/calm|peace|relax|content|serene/)) mood = "calm";
+      
       const m = getMeta(mood);
       const analysis = { mood, score: mood==="happy"?.82:mood==="calm"?.72:mood==="neutral"?.52:mood==="anxious"?.3:mood==="sad"?.28:.22, suggestion: SUGGESTIONS[mood] };
       setResult(analysis);
-      setEntries(prev => [{ _id:Date.now(), text, ...analysis, createdAt:new Date().toISOString() }, ...prev]);
       setText("");
-      addNotification(
-        "New Journal Analyzed ✍️",
-        `Mood analyzed as "${analysis.mood}". Confidence: ${Math.round(analysis.score * 100)}%.`,
-        "journal"
-      );
+
+      if (isLocalGreet) {
+        addNotification(
+          "Greeting Analyzed 👋",
+          "Greetings are analyzed for sentiment but not saved to your history.",
+          "info"
+        );
+      } else {
+        setEntries(prev => [{ _id:Date.now(), text, ...analysis, createdAt:new Date().toISOString() }, ...prev]);
+        addNotification(
+          "New Journal Analyzed ✍️",
+          `Mood analyzed as "${analysis.mood}". Confidence: ${Math.round(analysis.score * 100)}%.`,
+          "journal"
+        );
+      }
       // ── Crisis middleware: local keyword check for extreme patterns
       // Also scan the raw text for suicidal/depressive language as final safety net
       const hasCrisisKeyword = /suicid|kill myself|end my life|don't want to live|not worth living|depress|hopeless|self.harm/i.test(text);
@@ -109,6 +135,74 @@ export default function Journal() {
         setTimeout(() => triggerCrisis(), 600);
       }
     } finally { setAnalyzing(false); }
+  };
+
+  const handleUpdate = async (id) => {
+    if (editText.trim().length < 10) return;
+    setUpdatingId(id);
+    try {
+      const res = await api.put(`/journal/${id}`, { text: editText });
+      const updatedEntry = res.entry;
+      const analysis = res.analysis || res;
+
+      // Update state
+      setEntries(prev => prev.map(e => e._id === id ? updatedEntry : e));
+      setEditingId(null);
+      setResult(analysis);
+
+      addNotification(
+        "Journal Updated ✍️",
+        `Mood analyzed as "${analysis.mental_state || analysis.mood}". Confidence: ${Math.round(analysis.score * 100)}%.`,
+        "journal"
+      );
+
+      // Crisis check
+      const shouldTriggerCrisis =
+        res.is_crisis === true ||
+        analysis.is_crisis === true ||
+        isCrisisMood(analysis.mental_state) ||
+        isCrisisMood(analysis.mood);
+      if (shouldTriggerCrisis) {
+        console.log("🚨 Crisis trigger activated for label:", analysis.mental_state || analysis.crisis_label);
+        setTimeout(() => triggerCrisis(res.crisis_email_sent || analysis.crisis_email_sent || false), 600);
+      }
+    } catch {
+      // Fallback local analysis
+      const lower = editText.toLowerCase();
+      let mood = "neutral";
+      if (lower.match(/happy|joy|wonderful|excited|love|great|fantastic|blessed/)) mood = "happy";
+      else if (lower.match(/sad|depress|cry|lonely|hurt|hopeless/)) mood = "sad";
+      else if (lower.match(/anxi|stress|worry|nervous|panic|overwhelm/)) mood = "anxious";
+      else if (lower.match(/angry|furious|frustrated|mad|rage/)) mood = "angry";
+      else if (lower.match(/calm|peace|relax|content|serene/)) mood = "calm";
+      const m = getMeta(mood);
+      const analysis = { mood, score: mood === "happy" ? 0.82 : mood === "calm" ? 0.72 : mood === "neutral" ? 0.52 : mood === "anxious" ? 0.3 : mood === "sad" ? 0.28 : 0.22, suggestion: SUGGESTIONS[mood] };
+
+      const fallbackEntry = {
+        _id: id,
+        text: editText,
+        mood,
+        score: analysis.score,
+        createdAt: new Date().toISOString()
+      };
+
+      setEntries(prev => prev.map(e => e._id === id ? { ...e, ...fallbackEntry } : e));
+      setEditingId(null);
+      setResult(analysis);
+
+      addNotification(
+        "Journal Updated ✍️",
+        `Mood analyzed as "${analysis.mood}". Confidence: ${Math.round(analysis.score * 100)}%.`,
+        "journal"
+      );
+
+      const hasCrisisKeyword = /suicid|kill myself|end my life|don't want to live|not worth living|depress|hopeless|self.harm/i.test(editText);
+      if (isCrisisMood(mood) || hasCrisisKeyword) {
+        setTimeout(() => triggerCrisis(), 600);
+      }
+    } finally {
+      setUpdatingId(null);
+    }
   };
 
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -204,6 +298,8 @@ export default function Journal() {
           <div className="entries-grid">
             {entries.map((entry, i) => {
               const m = getMeta(entry.mood);
+              const isEditing = editingId === entry._id;
+              const isUpdating = updatingId === entry._id;
               return (
                 <div className="card entry-card" key={entry._id} style={{ animationDelay:`${i*.05}s`, borderColor:`${m.color}30` }}>
                   <div className="entry-card-top">
@@ -211,9 +307,53 @@ export default function Journal() {
                     <span className="chip" style={{ background:`${m.color}18`, color:m.color, fontSize:"11px" }}>
                       {entry.mood} · {Math.round((entry.score||.5)*100)}%
                     </span>
-                    <span className="entry-card-date">{new Date(entry.createdAt).toLocaleDateString()}</span>
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center", marginLeft: "auto" }}>
+                      <span className="entry-card-date">{new Date(entry.createdAt).toLocaleDateString()}</span>
+                      {!isEditing && (
+                        <button
+                          className="card-edit-btn"
+                          onClick={() => { setEditingId(entry._id); setEditText(entry.text); }}
+                          title="Edit Entry"
+                        >
+                          ✏️
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <p className="entry-card-text">{entry.text}</p>
+                  {isEditing ? (
+                    <div className="entry-edit-container">
+                      <textarea
+                        className="entry-edit-textarea"
+                        value={editText}
+                        onChange={e => setEditText(e.target.value.slice(0, 600))}
+                      />
+                      <div className="entry-edit-actions">
+                        <button
+                          className="btn-out"
+                          onClick={() => setEditingId(null)}
+                          disabled={isUpdating}
+                          style={{ padding: "6px 12px", fontSize: "12px", height: "auto" }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          className="analyze-btn"
+                          onClick={() => handleUpdate(entry._id)}
+                          disabled={isUpdating || editText.trim().length < 10}
+                          style={{ padding: "6px 12px", fontSize: "12px", height: "auto" }}
+                        >
+                          {isUpdating ? "Saving..." : "Save"}
+                        </button>
+                      </div>
+                      {editText.trim().length < 10 && (
+                        <p style={{ color: "#c47880", fontSize: "11px", marginTop: "4px" }}>
+                          Min 10 characters required.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="entry-card-text">{entry.text}</p>
+                  )}
                   <div className="entry-score-bar">
                     <div className="entry-score-fill" style={{ width:`${(entry.score||.5)*100}%`, background:m.color }} />
                   </div>
