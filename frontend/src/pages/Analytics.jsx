@@ -2,6 +2,31 @@ import { useState, useEffect } from "react";
 import { api } from "../utils/api";
 import "./Dashboard.css";
 import "./Analytics.css";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ArcElement
+} from "chart.js";
+import { Line, Doughnut } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ArcElement
+);
 
 const HM_COLS = ["#dceee4", "#b8d8c4", "#a8c4b0", "#7c9e8a", "#5a8870"];
 
@@ -133,40 +158,127 @@ export default function Analytics() {
     return `Based on your cognitive baseline, ${boosterPara} Meanwhile, ${stressorPara} By consciously leaning into your mood boosters and managing these primary triggers, you can systematically elevate your daily wellbeing.`;
   };
 
-  // 1. SVG Line Chart Points Scaling
-  const pts = moodHistory.map((d, i) => {
-    const x = moodHistory.length <= 1
-      ? 280
-      : 24 + (i / (moodHistory.length - 1)) * 516;
-    const y = 155 - (d.score * 110);
-    return { x, y, label: d.date, score: d.score };
-  });
+  // 1. Chart.js Config for Line Chart (Mood Score Over Time)
+  const lineData = {
+    labels: moodHistory.map((d) => d.date),
+    datasets: [
+      {
+        label: "Mood Score",
+        data: moodHistory.map((d) => Math.round(d.score * 100)),
+        borderColor: "#7c9e8a",
+        backgroundColor: "rgba(124, 158, 138, 0.12)",
+        borderWidth: 2.5,
+        pointBackgroundColor: "#ffffff",
+        pointBorderColor: "#7c9e8a",
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.35,
+        fill: true,
+      },
+      {
+        label: "Baseline",
+        data: Array(moodHistory.length).fill(50),
+        borderColor: "rgba(155, 142, 196, 0.4)",
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+      }
+    ]
+  };
 
-  const linePath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
-  const areaPath = pts.length > 0
-    ? `${linePath} L${pts[pts.length - 1].x},175 L${pts[0].x},175 Z`
-    : "";
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(155, 142, 196, 0.95)",
+        titleColor: "#ffffff",
+        bodyColor: "#ffffff",
+        padding: 10,
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          label: (context) => {
+            const index = context.dataIndex;
+            const mood = moodHistory[index]?.mood || "neutral";
+            return ` Wellness: ${context.raw}% (${mood.toUpperCase()})`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#8fa69a",
+          font: {
+            size: 9,
+            family: "DM Sans"
+          }
+        }
+      },
+      y: {
+        min: 0,
+        max: 100,
+        ticks: {
+          stepSize: 50,
+          color: "#8fa69a",
+          font: {
+            size: 9,
+            family: "DM Sans"
+          }
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.04)",
+        }
+      }
+    }
+  };
 
-  const peakPoint = pts.length > 0
-    ? pts.reduce((a, b) => a.y < b.y ? a : b)
-    : null;
+  // 2. Chart.js Config for Doughnut Chart (Emotion Mix)
+  const doughnutData = {
+    labels: moodBreakdown.map((b) => b.mood.charAt(0).toUpperCase() + b.mood.slice(1)),
+    datasets: [
+      {
+        data: moodBreakdown.map((b) => b.pct),
+        backgroundColor: moodBreakdown.map((b) => getMeta(b.mood).color),
+        borderWidth: 2,
+        borderColor: "#ffffff",
+        hoverOffset: 4
+      }
+    ]
+  };
 
-  // 2. SVG Donut Chart Math (r = 44, C = 276.4)
-  let accumulatedPct = 0;
-  const segments = moodBreakdown.map((breakdown) => {
-    const pct = breakdown.pct;
-    const color = getMeta(breakdown.mood).color;
-    const dash = (pct / 100) * 276.4;
-    const offset = -accumulatedPct * 2.764;
-    accumulatedPct += pct;
-    return {
-      label: breakdown.mood.charAt(0).toUpperCase() + breakdown.mood.slice(1),
-      pct,
-      color,
-      dash,
-      offset
-    };
-  });
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "70%",
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(45, 58, 52, 0.95)",
+        titleColor: "#ffffff",
+        bodyColor: "#ffffff",
+        padding: 8,
+        cornerRadius: 8,
+        callbacks: {
+          label: (context) => {
+            return ` ${context.label}: ${context.raw}%`;
+          }
+        }
+      }
+    }
+  };
 
   // 3. Dynamic Stressors calculation
   const anxietyPct = moodBreakdown.find(m => m.mood === "anxious" || m.mood === "anxiety")?.pct || 0;
@@ -299,51 +411,8 @@ export default function Analytics() {
               </span>
             </div>
           </div>
-          <div className="chart-svg-wrap" style={{ height: 210 }}>
-            <svg viewBox="0 0 560 190" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="areaG2" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#7c9e8a" stopOpacity=".22" />
-                  <stop offset="100%" stopColor="#7c9e8a" stopOpacity="0" />
-                </linearGradient>
-                <linearGradient id="lineG2" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#a8c4b0" />
-                  <stop offset="55%" stopColor="#7c9e8a" />
-                  <stop offset="100%" stopColor="#9b8ec4" />
-                </linearGradient>
-              </defs>
-              {/* Grid lines */}
-              {[47, 95, 143].map(y => (
-                <line key={y} x1="24" y1={y} x2="540" y2={y} stroke="rgba(0,0,0,.05)" strokeWidth="1" />
-              ))}
-              {/* Y labels */}
-              <text x="4" y="50" fontSize="9" fill="#8fa69a">100</text>
-              <text x="4" y="98" fontSize="9" fill="#8fa69a">50</text>
-              <text x="4" y="146" fontSize="9" fill="#8fa69a">0</text>
-              {/* Baseline dashed */}
-              <line x1="24" y1="78" x2="540" y2="78" stroke="#9b8ec4" strokeWidth="1.5" strokeDasharray="6,4" opacity=".5" />
-              {/* Area */}
-              {areaPath && <path d={areaPath} fill="url(#areaG2)" />}
-              {/* Line */}
-              {linePath && <path d={linePath} fill="none" stroke="url(#lineG2)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
-              {/* Dots */}
-              {pts.map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y} r="5"
-                  fill={i === pts.length - 1 ? "#7c9e8a" : "white"}
-                  stroke="#7c9e8a" strokeWidth="2"
-                />
-              ))}
-              {/* Peak tooltip */}
-              {peakPoint && (
-                <>
-                  <rect x={peakPoint.x - 22} y={peakPoint.y - 26} width="44" height="18" rx="7" fill="rgba(155,142,196,.88)" />
-                  <text x={peakPoint.x} y={peakPoint.y - 13} fontSize="9" fill="white" textAnchor="middle" fontWeight="600">Peak: {Math.round(peakPoint.score * 100)}%</text>
-                </>
-              )}
-            </svg>
-          </div>
-          <div className="ch-lbls" style={{ padding: "0 24px" }}>
-            {pts.map((p, i) => <span key={i} className="ch-lbl">{p.label}</span>)}
+          <div className="chart-svg-wrap" style={{ height: 210, position: "relative" }}>
+            <Line data={lineData} options={lineOptions} />
           </div>
         </div>
 
@@ -351,33 +420,34 @@ export default function Analytics() {
         <div className="card chart-card">
           <div className="ch-ttl" style={{ marginBottom: 3 }}>Emotion Mix</div>
           <div className="ch-sub" style={{ marginBottom: 18 }}>Last 30 days</div>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
-            <svg viewBox="0 0 120 120" width="115" height="115">
-              <circle cx="60" cy="60" r="44" fill="none" stroke="#dceee4" strokeWidth="17" />
-              {segments.map((seg, i) => (
-                <circle key={i} cx="60" cy="60" r="44" fill="none"
-                  stroke={seg.color} strokeWidth="17"
-                  strokeDasharray={`${seg.dash} 280`}
-                  strokeDashoffset={seg.offset}
-                  transform="rotate(-90 60 60)"
-                />
-              ))}
-              <circle cx="60" cy="60" r="28" fill="white" />
-              <text x="60" y="56" textAnchor="middle" fontSize="7.5" fill="#8fa69a">Dominant</text>
-              <text x="60" y="68" textAnchor="middle" fontSize="10.5" fill="#2d3a34" fontWeight="600" style={{ textTransform: "capitalize" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 18, position: "relative", width: "115px", height: "115px", margin: "0 auto 18px" }}>
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+            <div style={{
+              position: "absolute",
+              top: 0, left: 0, right: 0, bottom: 0,
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              pointerEvents: "none"
+            }}>
+              <span style={{ fontSize: "8.5px", color: "#8fa69a", textTransform: "uppercase", letterSpacing: "0.6px", fontWeight: "600" }}>Dominant</span>
+              <span style={{ fontSize: "12.5px", color: "#2d3a34", fontWeight: "700", textTransform: "capitalize", marginTop: "2px" }}>
                 {dominantMood}
-              </text>
-            </svg>
-          </div>
-          {segments.map((seg, i) => (
-            <div key={i} className="dl-row">
-              <span className="dl-label">
-                <span className="dl-swatch" style={{ background: seg.color }} />
-                {seg.label}
               </span>
-              <span className="dl-pct">{seg.pct}%</span>
             </div>
-          ))}
+          </div>
+          {moodBreakdown.map((breakdown, i) => {
+            const label = breakdown.mood.charAt(0).toUpperCase() + breakdown.mood.slice(1);
+            const color = getMeta(breakdown.mood).color;
+            return (
+              <div key={i} className="dl-row">
+                <span className="dl-label">
+                  <span className="dl-swatch" style={{ background: color }} />
+                  {label}
+                </span>
+                <span className="dl-pct">{breakdown.pct}%</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 

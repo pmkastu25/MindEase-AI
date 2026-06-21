@@ -3,6 +3,29 @@ import { api } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
 import "./Dashboard.css";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const MOOD_META = {
   happy: {
@@ -293,11 +316,6 @@ export default function Dashboard({ setActivePage }) {
           },
         ];
 
-  const chartMax = Math.max(
-    ...moodHistory.map((d) => d.score || 0),
-    0.01
-  );
-
   // Current mood = most recent entry (latest ML prediction)
   const currentMood = moodHistory.length > 0
     ? moodHistory[moodHistory.length - 1].mood
@@ -306,40 +324,90 @@ export default function Dashboard({ setActivePage }) {
     ? moodHistory[moodHistory.length - 1].score
     : 0;
 
-  // SAFE SVG POINTS
-  const pts = moodHistory.map((d, i) => {
-    const x =
-      moodHistory.length === 1
-        ? 250
-        : (i / (moodHistory.length - 1)) * 460 + 20;
+  // 1. Chart.js Config for Line Chart (Mood Trend)
+  const lineData = {
+    labels: moodHistory.map((d) => d.date),
+    datasets: [
+      {
+        label: "Mood Score",
+        data: moodHistory.map((d) => Math.round((d.score || 0) * 100)),
+        borderColor: "#7c9e8a",
+        backgroundColor: "rgba(124, 158, 138, 0.12)",
+        borderWidth: 2.5,
+        pointBackgroundColor: "#ffffff",
+        pointBorderColor: "#7c9e8a",
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.35,
+        fill: true,
+      },
+      {
+        label: "Baseline",
+        data: Array(moodHistory.length).fill(50),
+        borderColor: "rgba(155, 142, 196, 0.4)",
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        pointHoverRadius: 0,
+        fill: false,
+      }
+    ]
+  };
 
-    const y = 140 - ((d.score || 0) / chartMax) * 120;
-
-    return {
-      x,
-      y,
-      ...d,
-    };
-  });
-
-  const linePath =
-    pts.length > 0
-      ? pts
-          .map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`)
-          .join(" ")
-      : "";
-
-  const areaPath =
-    pts.length > 0
-      ? `${linePath} L${pts[pts.length - 1].x},160 L${pts[0].x},160 Z`
-      : "";
-
-  const peak =
-    pts.length > 0
-      ? pts.reduce((a, b) =>
-          a.score > b.score ? a : b
-        )
-      : null;
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(155, 142, 196, 0.95)",
+        titleColor: "#ffffff",
+        bodyColor: "#ffffff",
+        padding: 10,
+        cornerRadius: 8,
+        displayColors: false,
+        callbacks: {
+          label: (context) => {
+            const index = context.dataIndex;
+            const mood = moodHistory[index]?.mood || "neutral";
+            return ` Wellness: ${context.raw}% (${mood.toUpperCase()})`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#8fa69a",
+          font: {
+            size: 9,
+            family: "DM Sans"
+          }
+        }
+      },
+      y: {
+        min: 0,
+        max: 100,
+        ticks: {
+          stepSize: 50,
+          color: "#8fa69a",
+          font: {
+            size: 9,
+            family: "DM Sans"
+          }
+        },
+        grid: {
+          color: "rgba(0, 0, 0, 0.04)",
+        }
+      }
+    }
+  };
 
   return (
     <div className="dashboard">
@@ -546,139 +614,8 @@ export default function Dashboard({ setActivePage }) {
           </div>
         </div>
 
-        <div className="chart-svg-wrap">
-          <svg
-            viewBox="0 0 500 160"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <linearGradient
-                id="areaGrad"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="0%"
-                  stopColor="#7c9e8a"
-                  stopOpacity=".28"
-                />
-
-                <stop
-                  offset="100%"
-                  stopColor="#7c9e8a"
-                  stopOpacity="0"
-                />
-              </linearGradient>
-
-              <linearGradient
-                id="lineGrad"
-                x1="0"
-                y1="0"
-                x2="1"
-                y2="0"
-              >
-                <stop
-                  offset="0%"
-                  stopColor="#a8c4b0"
-                />
-
-                <stop
-                  offset="60%"
-                  stopColor="#7c9e8a"
-                />
-
-                <stop
-                  offset="100%"
-                  stopColor="#9b8ec4"
-                />
-              </linearGradient>
-            </defs>
-
-
-
-            {[40, 80, 120].map((y) => (
-              <line
-                key={y}
-                x1="0"
-                y1={y}
-                x2="500"
-                y2={y}
-                stroke="rgba(124,158,138,.1)"
-                strokeWidth="1"
-              />
-            ))}
-
-            {pts.length > 0 && (
-              <>
-                <path
-                  d={areaPath}
-                  fill="url(#areaGrad)"
-                />
-
-                <path
-                  d={linePath}
-                  fill="none"
-                  stroke="url(#lineGrad)"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-
-                {pts.map((p, i) => (
-                  <circle
-                    key={i}
-                    cx={p.x}
-                    cy={p.y}
-                    r="5"
-                    fill={
-                      i === pts.length - 1
-                        ? getMeta(p.mood).color
-                        : "white"
-                    }
-                    stroke={getMeta(p.mood).color}
-                    strokeWidth="2"
-                  />
-                ))}
-
-                {peak && (
-                  <>
-                    <rect
-                      x={peak.x - 22}
-                      y={peak.y - 26}
-                      width="44"
-                      height="18"
-                      rx="7"
-                      fill="rgba(155,142,196,.85)"
-                    />
-
-                    <text
-                      x={peak.x}
-                      y={peak.y - 13}
-                      fontSize="9"
-                      fill="white"
-                      textAnchor="middle"
-                      fontWeight="600"
-                    >
-                      {Math.round(peak.score * 100)}%
-                    </text>
-                  </>
-                )}
-              </>
-            )}
-          </svg>
-        </div>
-
-        <div className="ch-lbls">
-          {moodHistory.map((d) => (
-            <span
-              key={d.date}
-              className="ch-lbl"
-            >
-              {d.date}
-            </span>
-          ))}
+        <div className="chart-svg-wrap" style={{ height: 200, position: "relative" }}>
+          <Line data={lineData} options={lineOptions} />
         </div>
       </div>
 

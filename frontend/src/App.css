@@ -609,7 +609,8 @@ body.dark-theme .map-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 40px 20px;
+  overflow-y: auto;
   animation: overlayIn .35s ease both;
 }
 
@@ -629,6 +630,7 @@ body.dark-theme .map-wrapper {
   max-width: 560px;
   width: 100%;
   padding: 40px 36px 32px;
+  margin: auto;
   animation: crisisIn .5s cubic-bezier(0.34,1.1,0.64,1) both;
   overflow: hidden;
 }
