@@ -151,7 +151,7 @@ export default function Dashboard({ setActivePage }) {
     try {
       const checkInText = `Quick check-in: I am feeling ${label.toLowerCase()} today ${emoji}`;
       await api.post("/journal", { text: checkInText });
-      
+
       addNotification?.(
         "Mood Checked-In! 🌟",
         `Your mood has been logged as "${label}". We have updated your analytics.`,
@@ -252,7 +252,7 @@ export default function Dashboard({ setActivePage }) {
 
     breathRef.current = setInterval(() => {
       secondsLeft -= 1;
-      
+
       if (secondsLeft <= 0) {
         if (currentPhase === "Inhale") {
           currentPhase = "Hold";
@@ -278,7 +278,7 @@ export default function Dashboard({ setActivePage }) {
           }
         }
       }
-      
+
       setBreathPhase(currentPhase);
       setBreathSeconds(secondsLeft);
     }, 1000);
@@ -299,22 +299,22 @@ export default function Dashboard({ setActivePage }) {
     s?.moodHistory?.length > 0
       ? s.moodHistory
       : [
-          {
-            date: "No Data",
-            score: 0,
-            mood: "neutral",
-          },
-        ];
+        {
+          date: "No Data",
+          score: 0,
+          mood: "neutral",
+        },
+      ];
 
   const moodBreakdown =
     s?.moodBreakdown?.length > 0
       ? s.moodBreakdown
       : [
-          {
-            mood: "neutral",
-            pct: 100,
-          },
-        ];
+        {
+          mood: "neutral",
+          pct: 100,
+        },
+      ];
 
   // Current mood = most recent entry (latest ML prediction)
   const currentMood = moodHistory.length > 0
@@ -459,9 +459,8 @@ export default function Dashboard({ setActivePage }) {
           ].map(([emoji, label]) => (
             <button
               key={label}
-              className={`mood-btn ${
-                selectedMood === label ? "selected" : ""
-              }`}
+              className={`mood-btn ${selectedMood === label ? "selected" : ""
+                }`}
               onClick={() => handleMoodSelect(emoji, label)}
               disabled={loggingMood}
             >
@@ -479,13 +478,13 @@ export default function Dashboard({ setActivePage }) {
       </div>
 
       {/* STAT CARDS GRID */}
-      <div 
-        className="fd2" 
-        style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", 
-          gap: "18px", 
-          margin: "10px 0" 
+      <div
+        className="fd2"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: "18px",
+          margin: "10px 0"
         }}
       >
         {/* wellness score card */}
@@ -701,10 +700,10 @@ export default function Dashboard({ setActivePage }) {
           <div className="breathing-circle-wrap">
             <div className={`breathing-circle ${breathPhase ? breathPhase.toLowerCase() : "idle"}`}>
               <span className="breathing-emoji">
-                {breathPhase === "Inhale" ? "🫁" : 
-                 breathPhase === "Hold" ? "🧘" : 
-                 breathPhase === "Exhale" ? "😮‍💨" : 
-                 breathPhase === "Pause" ? "✨" : "🌸"}
+                {breathPhase === "Inhale" ? "🫁" :
+                  breathPhase === "Hold" ? "🧘" :
+                    breathPhase === "Exhale" ? "😮‍💨" :
+                      breathPhase === "Pause" ? "✨" : "🌸"}
               </span>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import "./AuthPage.css";
+import logo from "../logo.png";
 
 const RELATION_OPTIONS = [
   "Father", "Mother", "Guardian",
@@ -75,7 +76,9 @@ export default function AuthPage() {
       <div className={`auth-container fade-up ${mode === "register" ? "auth-container-wide" : ""}`}>
         {/* Brand */}
         <div className="auth-brand">
-          <div className="auth-logo-orb">🌿</div>
+          <div className="auth-logo-orb" style={{ overflow: "hidden", borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src={logo} alt="MindEase AI Logo" style={{ width: "90%", height: "90%", objectFit: "contain" }} />
+          </div>
           <h1 className="auth-title">MindEase <em>AI</em></h1>
           <p className="auth-tagline">Your emotion-aware well-being companion</p>
         </div>

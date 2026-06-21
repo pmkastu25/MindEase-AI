@@ -1,5 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import "./Navbar.css";
+import logo from "../logo.png";
 
 const NAV_ITEMS = [
   { id: "dashboard", emoji: "🏡", label: "Home" },
@@ -20,7 +21,9 @@ export default function Navbar({ activePage, setActivePage, mobileNavOpen, setMo
       <nav className={`navbar ${mobileNavOpen ? "mobile-open" : ""}`}>
         {/* Logo */}
         <div className="nav-logo">
-          <div className="logo-orb">🌿</div>
+          <div className="logo-orb" style={{ overflow: "hidden", borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src={logo} alt="MindEase AI Logo" style={{ width: "90%", height: "90%", objectFit: "contain" }} />
+          </div>
           <div>
             <div className="logo-name">MindEase AI</div>
             <div className="logo-sub">Wellness Companion</div>
