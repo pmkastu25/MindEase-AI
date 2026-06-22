@@ -8,19 +8,21 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
   Filler,
   ArcElement
 } from "chart.js";
-import { Line, Doughnut } from "react-chartjs-2";
+import { Line, Doughnut, Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -275,6 +277,121 @@ export default function Analytics() {
           label: (context) => {
             return ` ${context.label}: ${context.raw}%`;
           }
+        }
+      }
+    }
+  };
+
+  // 2.5. Chart.js Config for Emotional Drivers (Mood Boosters & Triggers)
+  const boosterLabels = (correlations.boosters || []).map(b => b.category);
+  const boosterData = {
+    labels: boosterLabels,
+    datasets: [
+      {
+        data: (correlations.boosters || []).map(b => Math.round(b.variance * 100)),
+        backgroundColor: "rgba(124, 158, 138, 0.85)",
+        borderColor: "#7c9e8a",
+        borderWidth: 1.5,
+        borderRadius: 6,
+        borderSkipped: "start",
+        barThickness: 16
+      }
+    ]
+  };
+
+  const boosterOptions = {
+    indexAxis: "y",
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "rgba(45, 58, 52, 0.95)",
+        titleColor: "#ffffff",
+        bodyColor: "#ffffff",
+        padding: 8,
+        cornerRadius: 8,
+        callbacks: {
+          label: (context) => {
+            const item = correlations.boosters[context.dataIndex];
+            return ` Mood Boost: +${context.raw}% (${item.count} logs)`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 0,
+        suggestedMax: 25,
+        grid: { color: "rgba(0, 0, 0, 0.04)" },
+        ticks: {
+          callback: (value) => `+${value}%`,
+          color: "#8fa69a",
+          font: { size: 9, family: "DM Sans" }
+        }
+      },
+      y: {
+        grid: { display: false },
+        ticks: {
+          color: "#2d3a34",
+          font: { size: 11, family: "DM Sans", weight: "500" }
+        }
+      }
+    }
+  };
+
+  const triggerLabels = (correlations.stressors || []).map(s => s.category);
+  const triggerData = {
+    labels: triggerLabels,
+    datasets: [
+      {
+        data: (correlations.stressors || []).map(s => Math.abs(Math.round(s.variance * 100))),
+        backgroundColor: "rgba(196, 120, 128, 0.85)",
+        borderColor: "#c47880",
+        borderWidth: 1.5,
+        borderRadius: 6,
+        borderSkipped: "start",
+        barThickness: 16
+      }
+    ]
+  };
+
+  const triggerOptions = {
+    indexAxis: "y",
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "rgba(45, 58, 52, 0.95)",
+        titleColor: "#ffffff",
+        bodyColor: "#ffffff",
+        padding: 8,
+        cornerRadius: 8,
+        callbacks: {
+          label: (context) => {
+            const item = correlations.stressors[context.dataIndex];
+            return ` Mood Drag: -${context.raw}% (${item.count} logs)`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 0,
+        suggestedMax: 25,
+        grid: { color: "rgba(0, 0, 0, 0.04)" },
+        ticks: {
+          callback: (value) => `-${value}%`,
+          color: "#8fa69a",
+          font: { size: 9, family: "DM Sans" }
+        }
+      },
+      y: {
+        grid: { display: false },
+        ticks: {
+          color: "#2d3a34",
+          font: { size: 11, family: "DM Sans", weight: "500" }
         }
       }
     }
@@ -556,24 +673,15 @@ export default function Analytics() {
             <div style={{ fontSize: 13, fontWeight: "600", color: "var(--sage)", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
               <span>📈</span> Top Mood Boosters
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {correlations.boosters && correlations.boosters.length > 0 ? (
-                correlations.boosters.map((b, idx) => (
-                  <div key={idx} className="dl-row" style={{ background: "rgba(124,158,138,0.06)", padding: "10px 14px", borderRadius: 10, margin: 0 }}>
-                    <span className="dl-label" style={{ fontWeight: "500" }}>
-                      {b.category} <span style={{ fontSize: 11, color: "var(--soft)" }}>({b.count} logs)</span>
-                    </span>
-                    <span className="trend-badge tr-up" style={{ fontSize: 11.5 }}>
-                      +{Math.round(b.variance * 100)}%
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div style={{ fontSize: 12.5, color: "var(--soft)", padding: "12px", textAlign: "center", background: "rgba(0,0,0,0.02)", borderRadius: 10 }}>
-                  No clear boosters identified yet.
-                </div>
-              )}
-            </div>
+            {correlations.boosters && correlations.boosters.length > 0 ? (
+              <div style={{ height: 140, position: "relative" }}>
+                <Bar data={boosterData} options={boosterOptions} />
+              </div>
+            ) : (
+              <div style={{ fontSize: 12.5, color: "var(--soft)", padding: "24px 12px", textAlign: "center", background: "rgba(0,0,0,0.02)", borderRadius: 10 }}>
+                No clear boosters identified yet.
+              </div>
+            )}
           </div>
 
           {/* Stressors/Triggers Column */}
@@ -581,24 +689,15 @@ export default function Analytics() {
             <div style={{ fontSize: 13, fontWeight: "600", color: "#c47880", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
               <span>📉</span> Top Emotional Triggers
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {correlations.stressors && correlations.stressors.length > 0 ? (
-                correlations.stressors.map((st, idx) => (
-                  <div key={idx} className="dl-row" style={{ background: "rgba(232,180,184,0.08)", padding: "10px 14px", borderRadius: 10, margin: 0 }}>
-                    <span className="dl-label" style={{ fontWeight: "500" }}>
-                      {st.category} <span style={{ fontSize: 11, color: "var(--soft)" }}>({st.count} logs)</span>
-                    </span>
-                    <span className="trend-badge tr-down" style={{ fontSize: 11.5 }}>
-                      {Math.round(st.variance * 100)}%
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div style={{ fontSize: 12.5, color: "var(--soft)", padding: "12px", textAlign: "center", background: "rgba(0,0,0,0.02)", borderRadius: 10 }}>
-                  No clear stressors identified yet.
-                </div>
-              )}
-            </div>
+            {correlations.stressors && correlations.stressors.length > 0 ? (
+              <div style={{ height: 140, position: "relative" }}>
+                <Bar data={triggerData} options={triggerOptions} />
+              </div>
+            ) : (
+              <div style={{ fontSize: 12.5, color: "var(--soft)", padding: "24px 12px", textAlign: "center", background: "rgba(0,0,0,0.02)", borderRadius: 10 }}>
+                No clear stressors identified yet.
+              </div>
+            )}
           </div>
         </div>
       </div>
