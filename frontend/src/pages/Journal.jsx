@@ -5,22 +5,22 @@ import { useCrisis, isCrisisMood } from "../context/CrisisContext";
 import "./Journal.css";
 
 const MOOD_META = {
-  happy:   { color:"#7c9e8a", emoji:"😊", needle:"74%" },
-  calm:    { color:"#8ab4c8", emoji:"😌", needle:"62%" },
-  neutral: { color:"#8fa69a", emoji:"😐", needle:"50%" },
-  anxious: { color:"#c4a060", emoji:"😰", needle:"28%" },
-  sad:     { color:"#9b8ec4", emoji:"😢", needle:"18%" },
-  angry:   { color:"#c47880", emoji:"😤", needle:"12%" },
+  happy: { color: "#7c9e8a", emoji: "😊", needle: "74%" },
+  calm: { color: "#8ab4c8", emoji: "😌", needle: "62%" },
+  neutral: { color: "#8fa69a", emoji: "😐", needle: "50%" },
+  anxious: { color: "#c4a060", emoji: "😰", needle: "28%" },
+  sad: { color: "#9b8ec4", emoji: "😢", needle: "18%" },
+  angry: { color: "#c47880", emoji: "😤", needle: "12%" },
 };
 const getMeta = (m) => MOOD_META[m?.toLowerCase()] || MOOD_META.neutral;
 
 const SUGGESTIONS = {
-  happy:   "Your positivity is wonderful! Savor this feeling and consider gratitude journaling to reinforce it.",
-  calm:    "This grounded state is precious. Use this clarity to reflect or plan something meaningful.",
+  happy: "Your positivity is wonderful! Savor this feeling and consider gratitude journaling to reinforce it.",
+  calm: "This grounded state is precious. Use this clarity to reflect or plan something meaningful.",
   neutral: "A balanced state is a good foundation. Is there anything you've been pushing aside that needs attention?",
   anxious: "Try the 4-7-8 breathing technique. Inhale 4s, hold 7s, exhale 8s. Then name 5 things you can see.",
-  sad:     "It's okay to feel sad — emotions are information, not weakness. Offer yourself the kindness you'd give a friend.",
-  angry:   "Anger signals an unmet need. Brisk movement can help process this energy before revisiting the situation.",
+  sad: "It's okay to feel sad — emotions are information, not weakness. Offer yourself the kindness you'd give a friend.",
+  angry: "Anger signals an unmet need. Brisk movement can help process this energy before revisiting the situation.",
 };
 
 const PROMPTS = [
@@ -53,10 +53,10 @@ export default function Journal() {
       setEntries(res.entries || []);
     } catch {
       setEntries([
-        { _id:"d1", text:"Feeling grateful today, the sun was so warm and welcoming.", mood:"happy",   score:.84, createdAt:new Date(Date.now()-86400000).toISOString() },
-        { _id:"d2", text:"Had a rough meeting, felt anxious about the upcoming deadline.", mood:"anxious", score:.42, createdAt:new Date(Date.now()-172800000).toISOString() },
-        { _id:"d3", text:"Spent time with family, really grounding and peaceful.", mood:"calm",    score:.76, createdAt:new Date(Date.now()-259200000).toISOString() },
-        { _id:"d4", text:"Couldn't sleep last night, feeling a bit drained today.", mood:"sad",     score:.35, createdAt:new Date(Date.now()-345600000).toISOString() },
+        { _id: "d1", text: "Feeling grateful today, the sun was so warm and welcoming.", mood: "happy", score: .84, createdAt: new Date(Date.now() - 86400000).toISOString() },
+        { _id: "d2", text: "Had a rough meeting, felt anxious about the upcoming deadline.", mood: "anxious", score: .42, createdAt: new Date(Date.now() - 172800000).toISOString() },
+        { _id: "d3", text: "Spent time with family, really grounding and peaceful.", mood: "calm", score: .76, createdAt: new Date(Date.now() - 259200000).toISOString() },
+        { _id: "d4", text: "Couldn't sleep last night, feeling a bit drained today.", mood: "sad", score: .35, createdAt: new Date(Date.now() - 345600000).toISOString() },
       ]);
     } finally { setLoading(false); }
   };
@@ -84,7 +84,7 @@ export default function Journal() {
           "info"
         );
       }
-      
+
       // ── Crisis middleware: PRIMARY check via is_crisis flag from ML service
       // This reliably catches Suicidal / Depression even when they're mood-aliased
       const shouldTriggerCrisis =
@@ -100,7 +100,7 @@ export default function Journal() {
       // Fallback local analysis
       const lower = text.toLowerCase();
       const isLocalGreet = /^(hi|hello|hey|hey there|greetings|good morning|good afternoon|good evening|wassup|yo|hii|heyy)(?:\s|[.!?]|$)/i.test(text.trim());
-      
+
       let mood = "neutral";
       if (isLocalGreet) mood = "neutral";
       else if (lower.match(/happy|joy|wonderful|excited|love|great|fantastic|blessed/)) mood = "happy";
@@ -108,9 +108,9 @@ export default function Journal() {
       else if (lower.match(/anxi|stress|worry|nervous|panic|overwhelm/)) mood = "anxious";
       else if (lower.match(/angry|furious|frustrated|mad|rage/)) mood = "angry";
       else if (lower.match(/calm|peace|relax|content|serene/)) mood = "calm";
-      
+
       const m = getMeta(mood);
-      const analysis = { mood, score: mood==="happy"?.82:mood==="calm"?.72:mood==="neutral"?.52:mood==="anxious"?.3:mood==="sad"?.28:.22, suggestion: SUGGESTIONS[mood] };
+      const analysis = { mood, score: mood === "happy" ? .82 : mood === "calm" ? .72 : mood === "neutral" ? .52 : mood === "anxious" ? .3 : mood === "sad" ? .28 : .22, suggestion: SUGGESTIONS[mood] };
       setResult(analysis);
       setText("");
 
@@ -121,7 +121,7 @@ export default function Journal() {
           "info"
         );
       } else {
-        setEntries(prev => [{ _id:Date.now(), text, ...analysis, createdAt:new Date().toISOString() }, ...prev]);
+        setEntries(prev => [{ _id: Date.now(), text, ...analysis, createdAt: new Date().toISOString() }, ...prev]);
         addNotification(
           "New Journal Analyzed ✍️",
           `Mood analyzed as "${analysis.mood}". Confidence: ${Math.round(analysis.score * 100)}%.`,
@@ -218,7 +218,7 @@ export default function Journal() {
         {/* EDITOR */}
         <div className="card journal-editor">
           <div className="journal-date">
-            📅 {new Date().toLocaleDateString("en-IN",{ weekday:"long", month:"long", day:"numeric", year:"numeric" })}
+            📅 {new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
           </div>
           <div className="journal-prompt">{prompt}</div>
           <textarea
@@ -230,7 +230,7 @@ export default function Journal() {
           {error && <p className="journal-error">{error}</p>}
           <div className="journal-actions">
             <span className="word-count">{wordCount} / 600 words</span>
-            <div style={{ display:"flex", gap:10 }}>
+            <div style={{ display: "flex", gap: 10 }}>
               <button className="btn-out">💾 Save Draft</button>
               <button className="analyze-btn" onClick={handleAnalyze} disabled={analyzing || text.trim().length < 10}>
                 {analyzing ? <><span className="spinner" /> Analyzing…</> : "🔍 Analyze Mood"}
@@ -243,7 +243,7 @@ export default function Journal() {
         <div className="journal-sidebar">
           {/* Sentiment result */}
           <div className="card sentiment-result">
-            <div style={{ fontSize:"10.5px", color:"var(--soft)", marginBottom:10, textTransform:"uppercase", letterSpacing:"1.2px", fontWeight:600 }}>
+            <div style={{ fontSize: "10.5px", color: "var(--soft)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "1.2px", fontWeight: 600 }}>
               Sentiment Analysis
             </div>
             <div className="sent-emoji">{result ? getMeta(result.mood).emoji : "🌿"}</div>
@@ -273,13 +273,13 @@ export default function Journal() {
             ) : entries.slice(0, 4).map(e => {
               const m = getMeta(e.mood);
               return (
-                <div className="entry-item" key={e._id} style={{ borderRadius:13 }}>
+                <div className="entry-item" key={e._id} style={{ borderRadius: 13 }}>
                   <div className="entry-dot" style={{ background: m.color }} />
                   <div>
-                    <div className="entry-dt">{new Date(e.createdAt).toLocaleDateString("en-IN",{ month:"short", day:"numeric", year:"numeric" })}</div>
+                    <div className="entry-dt">{new Date(e.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}</div>
                     <div className="entry-prev">{e.text}</div>
                     <div className="entry-emo" style={{ color: m.color }}>
-                      {m.emoji} {e.mood} · {Math.round((e.score||.5)*100)}/100
+                      {m.emoji} {e.mood} · {Math.round((e.score || .5) * 100)}/100
                     </div>
                   </div>
                 </div>
@@ -293,7 +293,7 @@ export default function Journal() {
       {entries.length > 0 && (
         <div className="fd2">
           <div className="pt-row">
-            <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:18, fontWeight:400 }}>All Entries</h3>
+            <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, fontWeight: 400 }}>All Entries</h3>
           </div>
           <div className="entries-grid">
             {entries.map((entry, i) => {
@@ -301,11 +301,11 @@ export default function Journal() {
               const isEditing = editingId === entry._id;
               const isUpdating = updatingId === entry._id;
               return (
-                <div className="card entry-card" key={entry._id} style={{ animationDelay:`${i*.05}s`, borderColor:`${m.color}30` }}>
+                <div className="card entry-card" key={entry._id} style={{ animationDelay: `${i * .05}s`, borderColor: `${m.color}30` }}>
                   <div className="entry-card-top">
                     <span className="entry-card-emoji">{m.emoji}</span>
-                    <span className="chip" style={{ background:`${m.color}18`, color:m.color, fontSize:"11px" }}>
-                      {entry.mood} · {Math.round((entry.score||.5)*100)}%
+                    <span className="chip" style={{ background: `${m.color}18`, color: m.color, fontSize: "11px" }}>
+                      {entry.mood} · {Math.round((entry.score || .5) * 100)}%
                     </span>
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", marginLeft: "auto" }}>
                       <span className="entry-card-date">{new Date(entry.createdAt).toLocaleDateString()}</span>
@@ -355,7 +355,7 @@ export default function Journal() {
                     <p className="entry-card-text">{entry.text}</p>
                   )}
                   <div className="entry-score-bar">
-                    <div className="entry-score-fill" style={{ width:`${(entry.score||.5)*100}%`, background:m.color }} />
+                    <div className="entry-score-fill" style={{ width: `${(entry.score || .5) * 100}%`, background: m.color }} />
                   </div>
                 </div>
               );

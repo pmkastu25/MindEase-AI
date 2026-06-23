@@ -107,7 +107,7 @@ async function sendDailyEngagementEmail(toEmail, userName) {
         <p style="font-size: 16px; line-height: 1.5;">${tip.body}</p>
         
         <div style="margin-top: 30px;">
-          <a href="http://localhost:5173" style="background-color: #7c9e8a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Open MindEase</a>
+          <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="background-color: #7c9e8a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Open MindEase</a>
         </div>
         
         <p style="margin-top: 40px; font-size: 12px; color: #999;">You are receiving this email because you are registered with MindEase.</p>

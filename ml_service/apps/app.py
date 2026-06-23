@@ -75,14 +75,27 @@
 #     print("Flask server running at http://localhost:5000/")
 #     app.run(host='0.0.0.0', port=5000, debug=True)
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+# pyrefly: ignore [missing-import]
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+# pyrefly: ignore [missing-import]
 import torch
+# pyrefly: ignore [missing-import]
 from transformers import BertTokenizer, BertForSequenceClassification
+# pyrefly: ignore [missing-import]
 import numpy as np
 
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 MODEL_NAME = "pmkastu25/mindease-mental-health-bert"
 
@@ -140,18 +153,19 @@ SUGGESTIONS = {
     "angry": "Take a pause and release tension.",
 }
 
-@app.route('/analyze', methods=['POST','OPTIONS'])
-def analyze_journal():
+class AnalyzeRequest(BaseModel):
+    text: str
 
+@app.post("/analyze")
+async def analyze_journal(payload: AnalyzeRequest):
     try:
-        data = request.get_json()
+        text = payload.text
 
-        if not data or "text" not in data:
-            return jsonify({
-                "message": "No text provided"
-            }), 400
-
-        text = data["text"]
+        if not text or not text.strip():
+            return JSONResponse(
+                status_code=400,
+                content={"message": "No text provided"}
+            )
 
         encoded_input = tokenizer(
             text,
@@ -202,13 +216,15 @@ def analyze_journal():
             "crisis_label": crisis_info["crisis_label"],
         }
 
-        return jsonify(response)
+        return response
 
     except Exception as e:
-        return jsonify({
-            "message": str(e)
-        }), 500
+        return JSONResponse(
+            status_code=500,
+            content={"message": str(e)}
+        )
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=5000)
