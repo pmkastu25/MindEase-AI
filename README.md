@@ -24,7 +24,7 @@ graph TD
     User([Browser Client]) <-->|React 18 + SPA Router| Client[Frontend Assets - Port 5173]
     Client <-->|Secure HTTP REST + JWT| Gateway[Express Backend - Port 5001]
     Gateway <-->|Mongoose ODM| Store[(MongoDB Database)]
-    Gateway <-->|HTTP POST /analyze| Inference[Flask Classifier - Port 5000]
+    Gateway <-->|HTTP POST /analyze| Inference[Fast API Classifier - Port 5000]
     Inference -.->|Fine-Tuned BERT| Model[pmkastu25/mindease-mental-health-bert]
     Gateway <-->|Webhook API| RasaNLU[Rasa Webhook - Port 5005/5006]
     Gateway <-->|Local API Port| LocalLLM[Ollama Llama3 Client - Port 11434]
@@ -136,7 +136,7 @@ cd ml_service
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
-python apps/app.py
+python.exe apps/app.py
 ```
 
 ### 4. Rasa Conversational NLU Setup
