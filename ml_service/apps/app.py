@@ -156,6 +156,10 @@ SUGGESTIONS = {
 class AnalyzeRequest(BaseModel):
     text: str
 
+@app.get("/")
+async def health_check():
+    return {"status": "healthy", "message": "MindEase AI ML Service is running successfully"}
+
 @app.post("/analyze")
 async def analyze_journal(payload: AnalyzeRequest):
     try:
