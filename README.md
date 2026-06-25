@@ -2,6 +2,9 @@
 
 MindEase AI v2 is a modular, triple-tier web application designed to support personal emotional tracking, cognitive behavioral reflections, and immediate mental health resources. The system is built around a botanical design system utilizing glassmorphic components to offer a peaceful, low-friction user experience.
 
+Deployment:
+Vercel (Frontend): https://mind-ease-ai-git-main-acers1.vercel.app/
+Render (Backend): https://mindease-ai-k84e.onrender.com
 ---
 
 ## 🎨 Theme Guidelines & Token System
