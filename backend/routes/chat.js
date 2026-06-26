@@ -1,28 +1,28 @@
 const router = require("express").Router();
-const axios  = require("axios");
-const auth   = require("../middleware/auth");
-const Chat   = require("../models/Chat");
-const User   = require("../models/User");
+const axios = require("axios");
+const auth = require("../middleware/auth");
+const Chat = require("../models/Chat");
+const User = require("../models/User");
 const { analyze, getSuggestion } = require("../services/sentiment");
 const { sendCrisisAlertEmail } = require("../services/emailService");
 const geminiModel = require("../services/gemini");
 const ollamaService = require("../services/ollama");
 const CBT = {
-  greet:"Hello! I'm MindEase, your AI mental health companion. 🌿 How are you feeling today?",
-  anxious:"I hear you're feeling anxious 💙\n\nLet's try grounding:\n• 5 things you can SEE\n• 4 you can TOUCH\n• 3 you can HEAR\n• 2 you can SMELL\n• 1 you can TASTE\n\nWhat's been triggering this feeling?",
-  sad:"I'm really sorry you're going through this 🤍\n\nYour feelings are completely valid. In CBT, difficult emotions are temporary — they rise and fall like waves.\n\nCan you identify one small thing that usually brings a tiny bit of comfort?",
-  angry:"I hear that you're frustrated 🔥\n\nAnger signals that something important has been threatened. Take 3 deep breaths — inhale 4 counts, exhale 6.\n\nWhat underlying need feels unmet right now?",
-  happy:"That's wonderful to hear! 😄✨\n\nPositive emotions are worth savouring. What's contributing to your happiness today? Identifying it helps you create more of it.",
-  calm:"It sounds like you're in a grounded place 🌿\n\nThis is a wonderful time for reflection. Is there something meaningful you'd like to focus on?",
-  default:"Thank you for sharing that 💚\n\nI'm here to listen and support you. Tell me more about what's on your mind — there's no judgment here.",
+  greet: "Hello! I'm MindEase, your AI mental health companion. 🌿 How are you feeling today?",
+  anxious: "I hear you're feeling anxious 💙\n\nLet's try grounding:\n• 5 things you can SEE\n• 4 you can TOUCH\n• 3 you can HEAR\n• 2 you can SMELL\n• 1 you can TASTE\n\nWhat's been triggering this feeling?",
+  sad: "I'm really sorry you're going through this 🤍\n\nYour feelings are completely valid. In CBT, difficult emotions are temporary — they rise and fall like waves.\n\nCan you identify one small thing that usually brings a tiny bit of comfort?",
+  angry: "I hear that you're frustrated 🔥\n\nAnger signals that something important has been threatened. Take 3 deep breaths — inhale 4 counts, exhale 6.\n\nWhat underlying need feels unmet right now?",
+  happy: "That's wonderful to hear! 😄✨\n\nPositive emotions are worth savouring. What's contributing to your happiness today? Identifying it helps you create more of it.",
+  calm: "It sounds like you're in a grounded place 🌿\n\nThis is a wonderful time for reflection. Is there something meaningful you'd like to focus on?",
+  default: "Thank you for sharing that 💚\n\nI'm here to listen and support you. Tell me more about what's on your mind — there's no judgment here.",
 };
-router.post("/", auth, async (req,res) => {
+router.post("/", auth, async (req, res) => {
   try {
     const { message } = req.body;
-    if (!message?.trim()) return res.status(400).json({ message:"Message cannot be empty" });
-    await Chat.create({ user:req.user._id, role:"user", text:message });
+    if (!message?.trim()) return res.status(400).json({ message: "Message cannot be empty" });
+    await Chat.create({ user: req.user._id, role: "user", text: message });
     const analysis = await analyze(message);
-    
+
     let reply = "";
     let methodUsed = "";
     const apiKey = process.env.GEMINI_API_KEY;
@@ -99,7 +99,7 @@ Assistant:`;
 
     // 2. Try Rasa proxy as secondary fallback if Gemini failed or is not configured
     if (!reply) {
-      console.log(`📡 Rasa proxy triggered. RASA_URL: '${process.env.RASA_URL}', RASA_FALLBACK_URL: '${process.env.RASA_FALLBACK_URL}'`);
+      console.log(`Rasa proxy triggered. RASA_URL: '${process.env.RASA_URL}', RASA_FALLBACK_URL: '${process.env.RASA_FALLBACK_URL}'`);
       try {
         const defaultRasaUrl = process.env.RASA_URL || "http://localhost:5006";
         const fallbackRasaUrl = process.env.RASA_FALLBACK_URL || "http://localhost:5005";
@@ -121,7 +121,7 @@ Assistant:`;
               break;
             }
           } catch (e) {
-            console.warn(`Rasa request failed at ${rasaUrl}: ${e.message}`);
+            console.log(`❌ Rasa request failed at ${rasaUrl}: code=${e.code}, message=${e.message}`);
           }
         }
       } catch (e) {
@@ -139,7 +139,7 @@ Assistant:`;
 
     // ── Crisis email: fire-and-forget to all saved contacts
     let crisisEmailSent = false;
-    const CRISIS_MOOD_LIST = ["suicidal","suicide","depression","depressed","self-harm","hopeless","crisis"];
+    const CRISIS_MOOD_LIST = ["suicidal", "suicide", "depression", "depressed", "self-harm", "hopeless", "crisis"];
     const isCrisis = analysis.is_crisis || CRISIS_MOOD_LIST.some(m => (analysis.mood || "").toLowerCase().includes(m));
     if (isCrisis) {
       try {
@@ -159,14 +159,14 @@ Assistant:`;
       }
     }
 
-    await Chat.create({ user:req.user._id, role:"bot", text:reply, mood:analysis.mood, score:analysis.score });
-    res.json({ reply, mood:analysis.mood, score:analysis.score, suggestion:getSuggestion(analysis.mood), crisis_email_sent: crisisEmailSent });
-  } catch(e) { res.status(500).json({ message:e.message }); }
+    await Chat.create({ user: req.user._id, role: "bot", text: reply, mood: analysis.mood, score: analysis.score });
+    res.json({ reply, mood: analysis.mood, score: analysis.score, suggestion: getSuggestion(analysis.mood), crisis_email_sent: crisisEmailSent });
+  } catch (e) { res.status(500).json({ message: e.message }); }
 });
-router.get("/history", auth, async (req,res) => {
+router.get("/history", auth, async (req, res) => {
   try {
-    const messages = await Chat.find({ user:req.user._id }).sort({ createdAt:-1 }).limit(50);
-    res.json({ messages:messages.reverse() });
-  } catch(e) { res.status(500).json({ message:e.message }); }
+    const messages = await Chat.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(50);
+    res.json({ messages: messages.reverse() });
+  } catch (e) { res.status(500).json({ message: e.message }); }
 });
 module.exports = router;
