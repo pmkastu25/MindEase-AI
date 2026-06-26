@@ -99,6 +99,7 @@ Assistant:`;
 
     // 2. Try Rasa proxy as secondary fallback if Gemini failed or is not configured
     if (!reply) {
+      console.log(`📡 Rasa proxy triggered. RASA_URL: '${process.env.RASA_URL}', RASA_FALLBACK_URL: '${process.env.RASA_FALLBACK_URL}'`);
       try {
         const defaultRasaUrl = process.env.RASA_URL || "http://localhost:5006";
         const fallbackRasaUrl = process.env.RASA_FALLBACK_URL || "http://localhost:5005";
