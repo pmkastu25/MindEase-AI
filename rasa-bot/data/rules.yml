@@ -16,3 +16,79 @@ rules:
   steps:
   - intent: bot_challenge
   - action: utter_iamabot
+
+- rule: Handle anxiety with LLM response
+  steps:
+  - intent: anxiety
+  - action: action_llm_response
+
+- rule: Handle stress with LLM response
+  steps:
+  - intent: stress
+  - action: action_llm_response
+
+- rule: Handle depression with LLM response
+  steps:
+  - intent: depression
+  - action: action_llm_response
+
+- rule: Handle loneliness with LLM response
+  steps:
+  - intent: loneliness
+  - action: action_llm_response
+
+- rule: Handle sleep problems with LLM response
+  steps:
+  - intent: sleep_problem
+  - action: action_llm_response
+
+- rule: Handle low motivation with LLM response
+  steps:
+  - intent: motivation_low
+  - action: action_llm_response
+
+- rule: Handle overthinking with LLM response
+  steps:
+  - intent: overthinking
+  - action: action_llm_response
+
+- rule: Handle self doubt with LLM response
+  steps:
+  - intent: self_doubt
+  - action: action_llm_response
+
+- rule: Handle study stress with LLM response
+  steps:
+  - intent: study_stress
+  - action: action_llm_response
+
+- rule: Handle work stress with LLM response
+  steps:
+  - intent: work_stress
+  - action: action_llm_response
+
+- rule: Handle relationship problems with LLM response
+  steps:
+  - intent: relationship_problem
+  - action: action_llm_response
+
+- rule: Handle family problems with LLM response
+  steps:
+  - intent: family_problem
+  - action: action_llm_response
+
+- rule: Handle breathing help with LLM response
+  steps:
+  - intent: breathing_help
+  - action: action_llm_response
+
+- rule: Handle ask resources with LLM response
+  steps:
+  - intent: ask_resources
+  - action: action_llm_response
+
+- rule: Handle sad mood with LLM response
+  steps:
+  - intent: mood_sad
+  - action: action_llm_response
+
