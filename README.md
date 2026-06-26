@@ -7,6 +7,7 @@ MindEase AI v2 is a modular, triple-tier web application designed to support per
 * Vercel (Frontend): https://mind-ease-ai-git-main-acers1.vercel.app/
 * Render (Backend): https://mindease-ai-k84e.onrender.com
 * Hugging Face Spaces (ml-service): https://pmkastu25-mindease-ml-service.hf.space
+* Hugging Face Spaces - rasa url (rasa-chatbot): https://pmkastu25-mindease-rasabot.hf.space
 
 ## 🎨 Theme Guidelines & Token System
 
