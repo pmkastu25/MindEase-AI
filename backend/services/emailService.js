@@ -16,6 +16,7 @@ async function initTransporter() {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      family: 4,
     });
     isEthereal = false;
     console.log(`Custom SMTP transporter initialized using host: ${process.env.SMTP_HOST}`);
