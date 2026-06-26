@@ -11,7 +11,9 @@ async function initTransporter() {
   // Check if SMTP environment variables are configured
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     let host = process.env.SMTP_HOST;
-    let tlsOptions = {};
+    let tlsOptions = {
+      rejectUnauthorized: false,
+    };
 
     if (!net.isIP(host)) {
       try {
@@ -19,6 +21,7 @@ async function initTransporter() {
         if (addresses && addresses.length > 0) {
           host = addresses[0];
           tlsOptions = {
+            rejectUnauthorized: false,
             servername: process.env.SMTP_HOST
           };
           console.log(`Resolved SMTP host ${process.env.SMTP_HOST} to IPv4: ${host}`);
