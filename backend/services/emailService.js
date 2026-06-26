@@ -44,7 +44,7 @@ async function sendMailHelper(mailOptions) {
 
   if (useBrevo) {
     let senderName = "MindEase";
-    let senderEmail = process.env.SMTP_USER || "hello@mindease.app";
+    let senderEmail = process.env.SENDER_EMAIL || "hello@mindease.app";
 
     if (mailOptions.from) {
       const fromMatch = mailOptions.from.match(/"?([^"<]*)"?\s*<([^>]+)>/);
@@ -56,9 +56,9 @@ async function sendMailHelper(mailOptions) {
       }
     }
 
-    // Force default to process.env.SMTP_USER if set and valid, which matches verified Brevo sender
-    if (process.env.SMTP_USER && process.env.SMTP_USER.includes('@')) {
-      senderEmail = process.env.SMTP_USER;
+    // Force default to process.env.SENDER_EMAIL if set and valid, which matches verified Brevo sender
+    if (process.env.SENDER_EMAIL && process.env.SENDER_EMAIL.includes('@')) {
+      senderEmail = process.env.SENDER_EMAIL;
     }
 
     try {
