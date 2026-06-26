@@ -1,6 +1,4 @@
 const nodemailer = require('nodemailer');
-const dns = require('dns').promises;
-const net = require('net');
 
 let transporter;
 let isEthereal = false;
@@ -10,39 +8,28 @@ async function initTransporter() {
 
   // Check if SMTP environment variables are configured
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    let host = process.env.SMTP_HOST;
-    let tlsOptions = {
-      rejectUnauthorized: false,
-    };
-
-    if (!net.isIP(host)) {
-      try {
-        const addresses = await dns.resolve4(host);
-        if (addresses && addresses.length > 0) {
-          host = addresses[0];
-          tlsOptions = {
-            rejectUnauthorized: false,
-            servername: process.env.SMTP_HOST
-          };
-          console.log(`Resolved SMTP host ${process.env.SMTP_HOST} to IPv4: ${host}`);
-        }
-      } catch (dnsErr) {
-        console.warn(`DNS IPv4 resolution for ${process.env.SMTP_HOST} failed, using hostname:`, dnsErr.message);
-      }
-    }
-
     transporter = nodemailer.createTransport({
-      host: host,
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: process.env.SMTP_SECURE === "true",
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      tls: tlsOptions,
+      tls: {
+        rejectUnauthorized: false,
+      },
+      logger: true,
+      debug: true,
     });
+    try {
+      await transporter.verify();
+      console.log("SMTP Ready");
+    } catch (verifyError) {
+      console.error("SMTP verification failed during initialization:", verifyError);
+    }
     isEthereal = false;
-    console.log(`Custom SMTP transporter initialized using host: ${host}`);
+    console.log(`Custom SMTP transporter initialized using host: ${process.env.SMTP_HOST}`);
   } else {
     // Generate test SMTP service account from ethereal.email
     let testAccount = await nodemailer.createTestAccount();
