@@ -1,51 +1,90 @@
 const nodemailer = require('nodemailer');
+const { BrevoClient } = require('@getbrevo/brevo');
 
 let transporter;
 let isEthereal = false;
+let useBrevo = false;
+let brevoClient;
 
 async function initTransporter() {
-  if (transporter) return;
+  if (useBrevo || transporter) return;
 
-  // Check if SMTP environment variables are configured
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: process.env.SMTP_SECURE === "true",
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-      logger: true,
-      debug: true,
-    });
-    try {
-      await transporter.verify();
-      console.log("SMTP Ready");
-    } catch (verifyError) {
-      console.error("SMTP verification failed during initialization:", verifyError);
-    }
-    isEthereal = false;
-    console.log(`Custom SMTP transporter initialized using host: ${process.env.SMTP_HOST}`);
+  // Prefer Brevo SDK if API key is provided
+  const brevoKey = process.env.BREVO_API_KEY || (process.env.SMTP_PASS && process.env.SMTP_PASS.startsWith('xsmtpsib-') ? process.env.SMTP_PASS : null);
+
+  if (brevoKey && brevoKey !== 'your_brevo_api_key_here') {
+    brevoClient = new BrevoClient({ apiKey: brevoKey });
+    useBrevo = true;
+    console.log("Brevo Transactional Emails API initialized (Production Mode).");
   } else {
-    // Generate test SMTP service account from ethereal.email
-    let testAccount = await nodemailer.createTestAccount();
+    // Generate test SMTP service account from ethereal.email (Local testing)
+    try {
+      let testAccount = await nodemailer.createTestAccount();
 
-    // create reusable transporter object using the default SMTP transport
-    transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: testAccount.user, // generated ethereal user
-        pass: testAccount.pass, // generated ethereal password
-      },
-    });
-    isEthereal = true;
-    console.log("Ethereal Email transporter initialized (Test Mode).");
+      transporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+      });
+      isEthereal = true;
+      useBrevo = false;
+      console.log("Ethereal Email transporter initialized (Test Mode).");
+    } catch (err) {
+      console.error("Failed to initialize Ethereal test transporter:", err);
+    }
+  }
+}
+
+async function sendMailHelper(mailOptions) {
+  await initTransporter();
+
+  if (useBrevo) {
+    let senderName = "MindEase";
+    let senderEmail = process.env.SMTP_USER || "hello@mindease.app";
+
+    if (mailOptions.from) {
+      const fromMatch = mailOptions.from.match(/"?([^"<]*)"?\s*<([^>]+)>/);
+      if (fromMatch) {
+        senderName = fromMatch[1].trim();
+        senderEmail = fromMatch[2].trim();
+      } else if (mailOptions.from.includes('@')) {
+        senderEmail = mailOptions.from.trim();
+      }
+    }
+
+    // Force default to process.env.SMTP_USER if set and valid, which matches verified Brevo sender
+    if (process.env.SMTP_USER && process.env.SMTP_USER.includes('@')) {
+      senderEmail = process.env.SMTP_USER;
+    }
+
+    try {
+      return await brevoClient.transactionalEmails.sendTransacEmail({
+        sender: {
+          name: senderName,
+          email: senderEmail
+        },
+        to: [{ email: mailOptions.to }],
+        subject: mailOptions.subject,
+        textContent: mailOptions.text,
+        htmlContent: mailOptions.html
+      });
+    } catch (err) {
+      const errorMsg = err.response && err.response.body ? JSON.stringify(err.response.body) : err.message;
+      throw new Error(`Brevo API Error: ${errorMsg}`);
+    }
+  } else {
+    if (!transporter) {
+      throw new Error("SMTP transporter not initialized.");
+    }
+    let info = await transporter.sendMail(mailOptions);
+    if (isEthereal) {
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    }
+    return info;
   }
 }
 
@@ -75,11 +114,8 @@ async function sendWelcomeEmail(toEmail, userName) {
   };
 
   try {
-    let info = await transporter.sendMail(mailOptions);
+    await sendMailHelper(mailOptions);
     console.log("Welcome Email sent to %s", toEmail);
-    if (isEthereal) {
-      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    }
   } catch (err) {
     console.error("Error sending welcome email:", err);
   }
@@ -127,11 +163,8 @@ async function sendDailyEngagementEmail(toEmail, userName) {
   };
 
   try {
-    let info = await transporter.sendMail(mailOptions);
+    await sendMailHelper(mailOptions);
     console.log("Daily Engagement Email sent to %s", toEmail);
-    if (isEthereal) {
-      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    }
   } catch (err) {
     console.error("Error sending daily engagement email:", err);
   }
@@ -247,11 +280,8 @@ async function sendCrisisAlertEmail(parentalContacts, otherContacts, userName, t
     };
 
     try {
-      let info = await transporter.sendMail(mailOptions);
+      await sendMailHelper(mailOptions);
       console.log(`🚨 Crisis alert email sent to ${email} (Relation: ${relation})`);
-      if (isEthereal) {
-        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-      }
       sentCount++;
     } catch (err) {
       console.error(`Error sending crisis email to ${email}:`, err);
