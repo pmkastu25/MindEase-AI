@@ -83,7 +83,7 @@ from pydantic import BaseModel
 # pyrefly: ignore [missing-import]
 import torch
 # pyrefly: ignore [missing-import]
-from transformers import BertTokenizer, BertForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # pyrefly: ignore [missing-import]
 import numpy as np
 
@@ -97,10 +97,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MODEL_NAME = "pmkastu25/mindease-mental-health-bert"
+MODEL_NAME = "pmkastu25/mindease-mental-health-bert-v2"
 
-tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
-model = BertForSequenceClassification.from_pretrained(MODEL_NAME)
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
 
 model.eval()
 
