@@ -63,14 +63,14 @@ Respond with empathy, support, and gentle cognitive behavioral guidance.
 
 User: ${message}
 Assistant:`;
-        console.log(`🤖 Invoking local Ollama model '${ollamaService.modelName}'...`);
+        console.log(`Invoking local Ollama model '${ollamaService.modelName}'...`);
         const botReply = await ollamaService.generateContent(prompt);
         if (botReply) {
           reply = botReply;
           methodUsed = "ollama";
         }
       } catch (err) {
-        console.warn("⚠️ Ollama failed. Falling back...", err.message);
+        console.warn("Ollama failed. Falling back...", err.message);
       }
     }
 
@@ -82,7 +82,7 @@ Respond with empathy, support, and gentle cognitive behavioral guidance.
 
 User: ${message}
 Assistant:`;
-        console.log(`☁️ Invoking Gemini fallback model...`);
+        console.log(`Invoking Gemini fallback model...`);
         const result = await geminiModel.generateContentWithRetry({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           generationConfig: {
@@ -93,7 +93,7 @@ Assistant:`;
         reply = response.text().trim();
         methodUsed = "gemini";
       } catch (err) {
-        console.warn("⚠️ Gemini API failed. Falling back...", err.message);
+        console.warn("Gemini API failed. Falling back...", err.message);
       }
     }
 
@@ -121,7 +121,7 @@ Assistant:`;
               break;
             }
           } catch (e) {
-            console.log(`❌ Rasa request failed at ${rasaUrl}: code=${e.code}, message=${e.message}`);
+            console.log(`Rasa request failed at ${rasaUrl}: code=${e.code}, message=${e.message}`);
           }
         }
       } catch (e) {
@@ -135,7 +135,7 @@ Assistant:`;
       methodUsed = "cbt_local";
     }
 
-    console.log(`🤖 Chatbot processed using logic: ${methodUsed}`);
+    console.log(`Chatbot processed using logic: ${methodUsed}`);
 
     // ── Crisis email: fire-and-forget to all saved contacts
     let crisisEmailSent = false;
@@ -147,11 +147,11 @@ Assistant:`;
         if (fullUser) {
           if (fullUser.parentalContacts?.length || fullUser.otherContacts?.length) {
             sendCrisisAlertEmail(fullUser.parentalContacts, fullUser.otherContacts, fullUser.name, message, fullUser.gender)
-              .then(sent => { if (sent) console.log("📧 Crisis email dispatched."); })
+              .then(sent => { if (sent) console.log("Crisis email dispatched."); })
               .catch(err => console.error("Crisis email dispatch error:", err));
             crisisEmailSent = true;
           } else {
-            console.log(`⚠️ Crisis alert triggered for ${fullUser.name}, but no emergency contacts are registered in their profile.`);
+            console.log(`Crisis alert triggered for ${fullUser.name}, but no emergency contacts are registered in their profile.`);
           }
         }
       } catch (err) {

@@ -133,14 +133,14 @@ const analyze = async (text) => {
     // Case 2: ML predicts Negative/Neutral/Depression, but Rules detect clear non-negated Positive/Calm mood (override to Positive/Calm)
     if (!isSevereCrisis) {
       if ((finalMood === "happy" || finalMood === "neutral") && (ruleRes.mood === "sad" || ruleRes.mood === "anxious" || ruleRes.mood === "angry")) {
-        console.log(`⚠️ Hybrid Override (Case 1): Overriding ML mood '${finalMood}' with explicit negative mood '${ruleRes.mood}'`);
+        console.log(`Hybrid Override (Case 1): Overriding ML mood '${finalMood}' with explicit negative mood '${ruleRes.mood}'`);
         finalMood = ruleRes.mood;
         finalScore = ruleRes.score;
         finalState = ruleRes.mood.charAt(0).toUpperCase() + ruleRes.mood.slice(1);
         isCrisis = false;
         crisisLabel = null;
       } else if ((finalMood === "sad" || finalMood === "anxious" || finalMood === "angry" || finalMood === "neutral" || finalState === "Depression") && (ruleRes.mood === "happy" || ruleRes.mood === "calm")) {
-        console.log(`⚠️ Hybrid Override (Case 2): Overriding ML mood '${finalMood}' / state '${finalState}' with explicit positive/calm mood '${ruleRes.mood}'`);
+        console.log(`Hybrid Override (Case 2): Overriding ML mood '${finalMood}' / state '${finalState}' with explicit positive/calm mood '${ruleRes.mood}'`);
         finalMood = ruleRes.mood;
         finalScore = ruleRes.score;
         finalState = ruleRes.mood.charAt(0).toUpperCase() + ruleRes.mood.slice(1);
@@ -158,7 +158,7 @@ const analyze = async (text) => {
     }
 
     if (isCrisis) {
-      console.log(`🚨 CRISIS MIDDLEWARE TRIGGERED: ML predicted '${crisisLabel}' — crisis flag active.`);
+      console.log(`CRISIS MIDDLEWARE TRIGGERED: ML predicted '${crisisLabel}' — crisis flag active.`);
     }
 
     return {

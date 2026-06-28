@@ -281,7 +281,7 @@ async function sendCrisisAlertEmail(parentalContacts, otherContacts, userName, t
 
     try {
       await sendMailHelper(mailOptions);
-      console.log(`🚨 Crisis alert email sent to ${email} (Relation: ${relation})`);
+      console.log(`Crisis alert email sent to ${email} (Relation: ${relation})`);
       sentCount++;
     } catch (err) {
       console.error(`Error sending crisis email to ${email}:`, err);

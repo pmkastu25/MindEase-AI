@@ -26,7 +26,7 @@ Assistant:"""
         
         if groq_api_key:
             try:
-                print("☁️ Invoking Groq API from Rasa action server...")
+                print("Invoking Groq API from Rasa action server...")
                 url = "https://api.groq.com/openai/v1/chat/completions"
                 response = requests.post(
                     url,
@@ -62,7 +62,7 @@ Assistant:"""
             gemini_api_key = os.environ.get("GEMINI_API_KEY")
             if gemini_api_key:
                 try:
-                    print("☁️ Invoking Gemini API from Rasa action server...")
+                    print("Invoking Gemini API from Rasa action server...")
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
                     response = requests.post(
                         url,
@@ -91,7 +91,7 @@ Assistant:"""
         if not bot_reply:
             ollama_url = os.environ.get("OOLAMA_API_URL", "http://localhost:11434/api/generate")
             try:
-                print("🤖 Invoking local Ollama from Rasa action server...")
+                print("Invoking local Ollama from Rasa action server...")
                 response = requests.post(
                     ollama_url,
                     json={

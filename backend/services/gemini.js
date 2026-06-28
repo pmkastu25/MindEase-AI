@@ -20,7 +20,7 @@ model.generateContentWithRetry = async function (options, retries = 3, delay = 1
         errMsg.toLowerCase().includes("too many requests");
         
       if (isRateLimit && i < retries) {
-        console.warn(`⚠️ Gemini API 429 Rate Limited. Retrying in ${delay}ms... (Attempt ${i + 1}/${retries})`);
+        console.warn(`Gemini API 429 Rate Limited. Retrying in ${delay}ms... (Attempt ${i + 1}/${retries})`);
         await new Promise(resolve => setTimeout(resolve, delay));
         delay *= 2; // Exponential backoff (1000ms -> 2000ms -> 4000ms)
         continue;

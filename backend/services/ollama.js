@@ -5,7 +5,7 @@ const hostUrl = process.env.OLLAMA_HOST ||
                 (process.env.OOLAMA_API_URL ? process.env.OOLAMA_API_URL.replace("/api/generate", "") : "") || 
                 "http://127.0.0.1:11434";
 
-console.log(`🔌 Initializing Ollama client targeting: ${hostUrl}`);
+console.log(`Initializing Ollama client targeting: ${hostUrl}`);
 const ollama = new Ollama({ host: hostUrl });
 
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3";
@@ -27,7 +27,7 @@ async function generateContent(prompt, model = OLLAMA_MODEL) {
     });
     return response.response.trim();
   } catch (err) {
-    console.error("❌ Ollama generation failed:", err.message);
+    console.error("Ollama generation failed:", err.message);
     throw err;
   }
 }

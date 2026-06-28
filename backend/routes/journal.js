@@ -52,11 +52,11 @@ router.post("/", auth, async (req,res) => {
         if (fullUser) {
           if (fullUser.parentalContacts?.length || fullUser.otherContacts?.length) {
             sendCrisisAlertEmail(fullUser.parentalContacts, fullUser.otherContacts, fullUser.name, text.trim(), fullUser.gender)
-              .then(sent => { if (sent) console.log("📧 Crisis email dispatched from journal."); })
+              .then(sent => { if (sent) console.log("Crisis email dispatched from journal."); })
               .catch(err => console.error("Crisis email dispatch from journal error:", err));
             crisisEmailSent = true;
           } else {
-            console.log(`⚠️ Crisis alert triggered from journal for ${fullUser.name}, but no emergency contacts are registered in their profile.`);
+            console.log(`Crisis alert triggered from journal for ${fullUser.name}, but no emergency contacts are registered in their profile.`);
           }
         }
       } catch (err) {
@@ -114,11 +114,11 @@ router.put("/:id", auth, async (req, res) => {
         if (fullUser) {
           if (fullUser.parentalContacts?.length || fullUser.otherContacts?.length) {
             sendCrisisAlertEmail(fullUser.parentalContacts, fullUser.otherContacts, fullUser.name, text.trim(), fullUser.gender)
-              .then(sent => { if (sent) console.log("📧 Crisis email dispatched from updated journal."); })
+              .then(sent => { if (sent) console.log("Crisis email dispatched from updated journal."); })
               .catch(err => console.error("Crisis email dispatch from updated journal error:", err));
             crisisEmailSent = true;
           } else {
-            console.log(`⚠️ Crisis alert triggered from updated journal for ${fullUser.name}, but no emergency contacts are registered in their profile.`);
+            console.log(`Crisis alert triggered from updated journal for ${fullUser.name}, but no emergency contacts are registered in their profile.`);
           }
         }
       } catch (err) {

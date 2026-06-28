@@ -20,10 +20,10 @@ const { startDailyEngagementCron } = require("./cron/dailyEngagement");
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/mindease")
   .then(() => { 
-    console.log("✅ MongoDB connected");
+    console.log("MongoDB connected");
     const port = process.env.PORT || 5001;
     app.listen(port, () => {
-      console.log("🚀 Server on port " + port);
+      console.log("Server on port " + port);
       startDailyEngagementCron();
     });
-  }).catch(err => console.error("❌ DB error:", err));
+  }).catch(err => console.error("DB error:", err));
