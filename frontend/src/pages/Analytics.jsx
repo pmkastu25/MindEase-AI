@@ -162,7 +162,7 @@ export default function Analytics() {
 
   // 1. Chart.js Config for Line Chart (Mood Score Over Time)
   const lineData = {
-    labels: moodHistory.map((d) => d.date),
+    labels: moodHistory.map((d) => `${d.date} ${getMeta(d.mood).emoji}`),
     datasets: [
       {
         label: "Mood Score",
@@ -170,11 +170,11 @@ export default function Analytics() {
         borderColor: "#7c9e8a",
         backgroundColor: "rgba(124, 158, 138, 0.12)",
         borderWidth: 2.5,
-        pointBackgroundColor: "#ffffff",
-        pointBorderColor: "#7c9e8a",
+        pointBackgroundColor: moodHistory.map((d) => getMeta(d.mood).color),
+        pointBorderColor: moodHistory.map((d) => getMeta(d.mood).color),
         pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6,
+        pointRadius: 6,
+        pointHoverRadius: 8,
         tension: 0.35,
         fill: true,
       },
@@ -209,7 +209,8 @@ export default function Analytics() {
           label: (context) => {
             const index = context.dataIndex;
             const mood = moodHistory[index]?.mood || "neutral";
-            return ` Wellness: ${context.raw}% (${mood.toUpperCase()})`;
+            const emoji = getMeta(mood).emoji;
+            return ` Wellness: ${context.raw}% (${mood.toUpperCase()} ${emoji})`;
           }
         }
       }

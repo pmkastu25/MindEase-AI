@@ -59,22 +59,41 @@ router.get("/stats", auth, async (req,res) => {
     const totalScoreSum = allItems.reduce((sum, item) => sum + item.score, 0);
     const avgScore = totalScoreSum / allItems.length;
 
-    // 2. Mood Counts & Dominant Mood
+    // 2. Helper to map score to mood based on proximity to standard mood scores
+    const mapScoreToMood = (score) => {
+      const moods = [
+        { name: "happy", val: 0.82 },
+        { name: "calm", val: 0.72 },
+        { name: "neutral", val: 0.52 },
+        { name: "anxious", val: 0.3 },
+        { name: "sad", val: 0.27 },
+        { name: "angry", val: 0.24 }
+      ];
+      let closest = moods[0];
+      let minDiff = Math.abs(score - closest.val);
+      for (let i = 1; i < moods.length; i++) {
+        const diff = Math.abs(score - moods[i].val);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closest = moods[i];
+        }
+      }
+      return closest.name;
+    };
+
+    // 3. Mood Breakdown (Percentages)
     const moodCounts = {};
     allItems.forEach(item => {
       moodCounts[item.mood] = (moodCounts[item.mood] || 0) + 1;
     });
     const sortedMoods = Object.entries(moodCounts).sort((a, b) => b[1] - a[1]);
-    const dominantMood = sortedMoods[0]?.[0] || null;
-
-    // 3. Mood Breakdown (Percentages)
     const totalItemsCount = allItems.length;
     const moodBreakdown = sortedMoods.map(([mood, count]) => ({
       mood,
       pct: Math.round((count / totalItemsCount) * 100)
     }));
 
-    // 4. Mood History (Daily Scores mapped to range)
+    // 4. Mood History (Daily Scores and mapped moods)
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const dayMap = {};
 
@@ -91,20 +110,33 @@ router.get("/stats", auth, async (req,res) => {
       }
 
       if (!dayMap[key]) {
-        dayMap[key] = { scores: [], mood: item.mood, date: key, countMap: {} };
+        dayMap[key] = { scores: [], date: key };
       }
       dayMap[key].scores.push(item.score);
-      dayMap[key].countMap[item.mood] = (dayMap[key].countMap[item.mood] || 0) + 1;
     });
 
     const moodHistory = Object.values(dayMap).map(d => {
-      const domMood = Object.entries(d.countMap).sort((a, b) => b[1] - a[1])[0]?.[0] || d.mood;
+      const avgScore = d.scores.reduce((s, x) => s + x, 0) / d.scores.length;
+      const domMood = mapScoreToMood(avgScore);
       return {
         date: d.date,
-        score: d.scores.reduce((s, x) => s + x, 0) / d.scores.length,
+        score: avgScore,
         mood: domMood
       };
     });
+
+    // 5. Calculate Dominant Mood (based on the average of the day's score)
+    const todayStr = new Date().toDateString();
+    const todayItems = allItems.filter(item => new Date(item.createdAt).toDateString() === todayStr);
+    let dominantMood = null;
+    if (todayItems.length > 0) {
+      const todayAvg = todayItems.reduce((sum, item) => sum + item.score, 0) / todayItems.length;
+      dominantMood = mapScoreToMood(todayAvg);
+    } else {
+      // Fallback: take the latest active day in the history
+      const latestDay = moodHistory[moodHistory.length - 1];
+      dominantMood = latestDay ? latestDay.mood : null;
+    }
 
     // 5. Total Entries logged in database (journals only, as requested)
     const totalEntries = await Journal.countDocuments({ user: req.user._id });
