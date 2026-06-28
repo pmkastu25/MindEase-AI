@@ -48,8 +48,22 @@ const MOOD_META = {
 };
 
 
-const getMeta = (m) =>
-  MOOD_META[m?.toLowerCase()] || MOOD_META.neutral;
+const getMeta = (m) => MOOD_META[m?.toLowerCase()] || MOOD_META.neutral;
+
+const getDisplayPercentage = (score, mood) => {
+  if (score > 0 && score < 1 && score !== 0.5) {
+    return Math.round(score * 100);
+  }
+  const m = (mood || "").toLowerCase();
+  if (m === "happy" || m === "joy") return 90;
+  if (m === "calm") return 75;
+  if (m === "neutral" || m === "greet") return 50;
+  if (m === "anxious") return 30;
+  if (m === "sad") return 25;
+  if (m === "angry") return 20;
+  if (m === "suicidal" || m === "depression") return 10;
+  return score === 1 ? 100 : score === -1 ? 0 : 50;
+};
 
 export default function Analytics() {
   const [range, setRange] = useState("week");
@@ -111,7 +125,7 @@ export default function Analytics() {
     { mood: "neutral", pct: 10 },
   ];
 
-  const heatmapData = s.heatmapData || Array(35).fill(-1);
+  const heatmapData = s.heatmapData || Array(35).fill(-999);
 
   const correlations = s.correlations || {
     isMock: true,
@@ -166,7 +180,7 @@ export default function Analytics() {
     datasets: [
       {
         label: "Mood Score",
-        data: moodHistory.map((d) => Math.round(d.score * 100)),
+        data: moodHistory.map((d) => Number((d.score !== undefined ? d.score : 0).toFixed(2))),
         borderColor: "#7c9e8a",
         backgroundColor: "rgba(124, 158, 138, 0.12)",
         borderWidth: 2.5,
@@ -180,7 +194,7 @@ export default function Analytics() {
       },
       {
         label: "Baseline",
-        data: Array(moodHistory.length).fill(50),
+        data: Array(moodHistory.length).fill(0),
         borderColor: "rgba(155, 142, 196, 0.4)",
         borderWidth: 1.5,
         borderDash: [6, 4],
@@ -210,7 +224,9 @@ export default function Analytics() {
             const index = context.dataIndex;
             const mood = moodHistory[index]?.mood || "neutral";
             const emoji = getMeta(mood).emoji;
-            return ` Wellness: ${context.raw}% (${mood.toUpperCase()} ${emoji})`;
+            const val = context.raw;
+            const labelText = val > 0.1 ? "Positive" : val < -0.1 ? "Negative" : "Neutral";
+            return ` Mood: ${labelText} (${val > 0 ? '+' : ''}${val.toFixed(2)}) (${mood.toUpperCase()} ${emoji})`;
           }
         }
       }
@@ -229,10 +245,16 @@ export default function Analytics() {
         }
       },
       y: {
-        min: 0,
-        max: 100,
+        min: -1,
+        max: 1,
         ticks: {
-          stepSize: 50,
+          stepSize: 1,
+          callback: function(value) {
+            if (value === 1) return "Positive";
+            if (value === 0) return "Neutral";
+            if (value === -1) return "Negative";
+            return "";
+          },
           color: "#8fa69a",
           font: {
             size: 9,
@@ -414,32 +436,35 @@ export default function Analytics() {
   // 4. Heatmap helper functions
   const getCellBg = (v) => {
     if (v === null) return "transparent";
-    if (v === -1) return "rgba(0,0,0,0.04)";
-    const idx = Math.min(HM_COLS.length - 1, Math.floor(v * HM_COLS.length));
+    if (v === -999) return "rgba(0,0,0,0.04)";
+    // Map [-1, 1] to [0, 1] for visual indexing
+    const scaled = (v + 1) / 2;
+    const idx = Math.min(HM_COLS.length - 1, Math.floor(scaled * HM_COLS.length));
     return HM_COLS[idx];
   };
 
   const getCellTextColor = (v) => {
-    if (v === -1) return "var(--soft, #8fa69a)";
-    return v >= 0.52 ? "#ffffff" : "#2d3a34";
+    if (v === -999) return "var(--soft, #8fa69a)";
+    return v >= 0 ? "#ffffff" : "#2d3a34";
   };
 
   const firstDayOffset = heatmapData.findIndex(v => v !== null);
   const getCellTitle = (v, idx) => {
     if (v === null) return undefined;
     const dayOfMonth = idx - firstDayOffset + 1;
-    if (v === -1) return `Day ${dayOfMonth}: No sessions logged`;
-    return `Day ${dayOfMonth}: Wellness Score ${Math.round(v * 100)}%`;
+    if (v === -999) return `Day ${dayOfMonth}: No sessions logged`;
+    const label = v > 0.1 ? "Positive" : v < -0.1 ? "Negative" : "Neutral";
+    return `Day ${dayOfMonth}: ${label} (${v > 0 ? '+' : ''}${v.toFixed(2)})`;
   };
 
   // 5. Insight Pills List
   const peakDay = moodHistory.length > 0
     ? moodHistory.reduce((a, b) => a.score > b.score ? a : b)
     : null;
-  const peakText = peakDay ? `Peak: ${peakDay.date} (${Math.round(peakDay.score * 100)}%)` : "No Peak yet";
+  const peakText = peakDay ? `Peak: ${peakDay.date} (${getDisplayPercentage(peakDay.score, peakDay.mood)}%)` : "No Peak yet";
 
   const pills = [
-    { dot: "#7c9e8a", text: `Mood avg. ${Math.round(avgScore * 100)}/100` },
+    { dot: "#7c9e8a", text: `Mood avg. ${Math.round((avgScore + 1) * 50)}/100` },
     { dot: getMeta(dominantMood).color, text: `Dominant: ${(dominantMood || "neutral").toUpperCase()} ${getMeta(dominantMood).emoji}` },
     { dot: getMeta(currentMood).color,  text: `Current: ${(currentMood || "neutral").toUpperCase()} ${getMeta(currentMood).emoji}` },
     { dot: "#e8c870", text: peakText },
@@ -603,12 +628,12 @@ export default function Analytics() {
                     paddingBottom: "100%",
                     borderRadius: 6,
                     background: getCellBg(v),
-                    cursor: v !== null && v !== -1 ? "pointer" : "default",
+                    cursor: v !== null && v !== -999 ? "pointer" : "default",
                     transition: "transform .2s",
                   }}
                   title={getCellTitle(v, i)}
-                  onMouseEnter={e => v !== null && v !== -1 && (e.target.style.transform = "scale(1.2)")}
-                  onMouseLeave={e => v !== null && v !== -1 && (e.target.style.transform = "scale(1)")}
+                  onMouseEnter={e => v !== null && v !== -999 && (e.target.style.transform = "scale(1.2)")}
+                  onMouseLeave={e => v !== null && v !== -999 && (e.target.style.transform = "scale(1)")}
                 >
                   {v !== null && (
                     <span

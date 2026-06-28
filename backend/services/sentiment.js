@@ -15,27 +15,27 @@ const ruleBased = (text) => {
   const l = text.toLowerCase();
 
   if (l.match(/suicid|kill myself|end my life|don't want to live|not worth living|self.harm|hurt myself|cutting|self.destruct/))
-    return { mood: "suicidal", score: .08, emotions: ["crisis"], is_crisis: true };
+    return { mood: "suicidal", score: -1, emotions: ["crisis"], is_crisis: true };
 
   if (l.match(/^(hi|hello|hey|hey there|greetings|good morning|good afternoon|good evening|wassup|yo|hii|heyy)(?:\s|[.!?]|$)/i))
-    return { mood: "greet", score: .5, emotions: ["neutral"] };
+    return { mood: "greet", score: 0, emotions: ["neutral"] };
 
   if (l.match(/happy|joy|wonderful|excited|love|great|fantastic/))
-    return { mood: "happy", score: .82, emotions: ["joy", "happiness"] };
+    return { mood: "happy", score: 1, emotions: ["joy", "happiness"] };
 
   if (l.match(/sad|depress|cry|lonely|hurt|hopeless|heartbroke|breakup|grief|mourn/))
-    return { mood: "sad", score: .27, emotions: ["sadness"] };
+    return { mood: "sad", score: -1, emotions: ["sadness"] };
 
   if (l.match(/anxi|stress|worry|nervous|panic|overwhelm|scared|afraid|tension|fear/))
-    return { mood: "anxious", score: .3, emotions: ["anxiety", "worry"] };
+    return { mood: "anxious", score: -1, emotions: ["anxiety", "worry"] };
 
   if (l.match(/angry|furious|frustrated|mad|rage|fight|argument|quarrel|qwarrel|conflict|clash|disagree|dispute|annoy/))
-    return { mood: "angry", score: .24, emotions: ["anger"] };
+    return { mood: "angry", score: -1, emotions: ["anger"] };
 
   if (l.match(/calm|peace|relax|content|serene/))
-    return { mood: "calm", score: .72, emotions: ["calm"] };
+    return { mood: "calm", score: 1, emotions: ["calm"] };
 
-  return { mood: "neutral", score: .52, emotions: ["neutral"] };
+  return { mood: "neutral", score: 0, emotions: ["neutral"] };
 };
 
 const analyze = async (text) => {
@@ -69,28 +69,13 @@ const analyze = async (text) => {
       finalScore = ruleRes.score;
       finalState = ruleRes.mood.charAt(0).toUpperCase() + ruleRes.mood.slice(1);
     } else {
-      // Convert/scale ML confidence score to appropriate wellness scores (lower is worse)
-      if (isCrisis) {
-        if (crisisLabel === "Suicidal" || finalMood === "suicidal") {
-          finalScore = 0.08;
-        } else if (crisisLabel === "Depression" || finalMood === "depression" || finalMood === "sad") {
-          finalScore = 0.18;
-        }
-      } else {
-        if (finalMood === "happy" || finalMood === "joy") {
-          finalScore = Math.max(0.75, finalScore);
-        } else if (finalMood === "calm") {
-          finalScore = Math.max(0.65, finalScore);
-        } else if (finalMood === "neutral") {
-          finalScore = 0.52;
-        } else if (finalMood === "anxious") {
-          finalScore = Math.max(0.1, 0.45 - (finalScore * 0.15));
-        } else if (finalMood === "angry") {
-          finalScore = Math.max(0.1, 0.35 - (finalScore * 0.15));
-        } else if (finalMood === "sad") {
-          finalScore = Math.max(0.1, 0.35 - (finalScore * 0.15));
-        }
-      }
+      const getScoreFromMood = (mood) => {
+        const m = (mood || "").toLowerCase();
+        if (m === "happy" || m === "calm" || m === "joy") return 1;
+        if (m === "neutral" || m === "greet" || m === "normal") return 0;
+        return -1;
+      };
+      finalScore = getScoreFromMood(finalMood);
     }
 
     if (isCrisis) {

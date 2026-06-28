@@ -37,7 +37,7 @@ router.post("/", auth, async (req,res) => {
       text: text.trim(),
       mood: analysis.mood,
       mental_state: analysis.mental_state || "Normal",
-      score: Math.max(0, Math.min(1, analysis.score || .5)),
+      score: Math.max(-1, Math.min(1, analysis.score || 0)),
       emotions: analysis.emotions || [],
       suggestion: analysis.suggestion
     });
@@ -98,7 +98,7 @@ router.put("/:id", auth, async (req, res) => {
     entry.text = text.trim();
     entry.mood = analysis.mood;
     entry.mental_state = analysis.mental_state || "Normal";
-    entry.score = Math.max(0, Math.min(1, analysis.score || .5));
+    entry.score = Math.max(-1, Math.min(1, analysis.score || 0));
     entry.emotions = analysis.emotions || [];
     entry.suggestion = analysis.suggestion;
 

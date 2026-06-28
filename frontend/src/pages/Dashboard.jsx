@@ -92,6 +92,21 @@ const getMeta = (m) =>
 const scoreLabel = (s) =>
   s >= 0.72 ? "Great" : s >= 0.52 ? "Good" : s >= 0.35 ? "Okay" : "Low";
 
+const getDisplayPercentage = (score, mood) => {
+  if (score > 0 && score < 1 && score !== 0.5) {
+    return Math.round(score * 100);
+  }
+  const m = (mood || "").toLowerCase();
+  if (m === "happy" || m === "joy") return 90;
+  if (m === "calm") return 75;
+  if (m === "neutral" || m === "greet") return 50;
+  if (m === "anxious") return 30;
+  if (m === "sad") return 25;
+  if (m === "angry") return 20;
+  if (m === "suicidal" || m === "depression") return 10;
+  return score === 1 ? 100 : score === -1 ? 0 : 50;
+};
+
 function buildDemoStats() {
   return {
     avgScore: 0.74,
@@ -100,13 +115,13 @@ function buildDemoStats() {
     dominantMood: "calm",
 
     moodHistory: [
-      { date: "Mon", score: 0.45, mood: "anxious" },
-      { date: "Tue", score: 0.62, mood: "calm" },
-      { date: "Wed", score: 0.55, mood: "neutral" },
-      { date: "Thu", score: 0.82, mood: "happy" },
-      { date: "Fri", score: 0.5, mood: "sad" },
-      { date: "Sat", score: 0.78, mood: "calm" },
-      { date: "Sun", score: 0.68, mood: "calm" },
+      { date: "Mon", score: -1, mood: "anxious" },
+      { date: "Tue", score: 1, mood: "calm" },
+      { date: "Wed", score: 0, mood: "neutral" },
+      { date: "Thu", score: 1, mood: "happy" },
+      { date: "Fri", score: -1, mood: "sad" },
+      { date: "Sat", score: 1, mood: "calm" },
+      { date: "Sun", score: 1, mood: "calm" },
     ],
 
     moodBreakdown: [
@@ -330,7 +345,7 @@ export default function Dashboard({ setActivePage }) {
     datasets: [
       {
         label: "Mood Score",
-        data: moodHistory.map((d) => Math.round((d.score || 0) * 100)),
+        data: moodHistory.map((d) => Number((d.score !== undefined ? d.score : 0).toFixed(2))),
         borderColor: "#7c9e8a",
         backgroundColor: "rgba(124, 158, 138, 0.12)",
         borderWidth: 2.5,
@@ -344,7 +359,7 @@ export default function Dashboard({ setActivePage }) {
       },
       {
         label: "Baseline",
-        data: Array(moodHistory.length).fill(50),
+        data: Array(moodHistory.length).fill(0),
         borderColor: "rgba(155, 142, 196, 0.4)",
         borderWidth: 1.5,
         borderDash: [6, 4],
@@ -374,7 +389,9 @@ export default function Dashboard({ setActivePage }) {
             const index = context.dataIndex;
             const mood = moodHistory[index]?.mood || "neutral";
             const emoji = getMeta(mood).emoji;
-            return ` Wellness: ${context.raw}% (${mood.toUpperCase()} ${emoji})`;
+            const val = context.raw;
+            const labelText = val > 0.1 ? "Positive" : val < -0.1 ? "Negative" : "Neutral";
+            return ` Mood: ${labelText} (${val > 0 ? '+' : ''}${val.toFixed(2)}) (${mood.toUpperCase()} ${emoji})`;
           }
         }
       }
@@ -393,10 +410,16 @@ export default function Dashboard({ setActivePage }) {
         }
       },
       y: {
-        min: 0,
-        max: 100,
+        min: -1,
+        max: 1,
         ticks: {
-          stepSize: 50,
+          stepSize: 1,
+          callback: function(value) {
+            if (value === 1) return "Positive";
+            if (value === 0) return "Neutral";
+            if (value === -1) return "Negative";
+            return "";
+          },
           color: "#8fa69a",
           font: {
             size: 9,
@@ -678,10 +701,7 @@ export default function Dashboard({ setActivePage }) {
                         }}
                       >
                         {meta.emoji} {entry.mood} ·{" "}
-                        {Math.round(
-                          (entry.score || 0.5) * 100
-                        )}
-                        /100
+                        {getDisplayPercentage(entry.score, entry.mood)}/100
                       </div>
                     </div>
                   </div>

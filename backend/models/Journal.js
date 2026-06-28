@@ -38,8 +38,8 @@ const s = new mongoose.Schema({
 
   score: {
     type: Number,
-    default: 0.5,
-    min: 0,
+    default: 0,
+    min: -1,
     max: 1
   },
 

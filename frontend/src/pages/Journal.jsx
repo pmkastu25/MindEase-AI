@@ -30,6 +30,39 @@ const PROMPTS = [
   '"What is one thing I can do today to nurture my wellbeing?"',
 ];
 
+const getDisplayPercentage = (score, mood) => {
+  if (score > 0 && score < 1 && score !== 0.5) {
+    return Math.round(score * 100);
+  }
+  const m = (mood || "").toLowerCase();
+  if (m === "happy" || m === "joy") return 90;
+  if (m === "calm") return 75;
+  if (m === "neutral" || m === "greet") return 50;
+  if (m === "anxious") return 30;
+  if (m === "sad") return 25;
+  if (m === "angry") return 20;
+  if (m === "suicidal" || m === "depression") return 10;
+  return score === 1 ? 100 : score === -1 ? 0 : 50;
+};
+
+const getChipStyle = (color, isModal = false) => {
+  const c = color?.toLowerCase();
+  // Map hex codes or getMeta output colors to high contrast accessible text versions
+  const darkColor = c === '#7c9e8a' ? '#3d5c4b' : c === '#9b8ec4' ? '#4d3d7c' : c === '#c47880' ? '#7d383f' : c === '#8ab4c8' ? '#2e4f60' : c === '#c4a060' ? '#73561a' : '#38473f';
+  return {
+    background: `${color}1d`,
+    color: darkColor,
+    fontSize: isModal ? "12px" : "11px",
+    fontWeight: 600,
+    border: `1px solid ${color}45`,
+    display: isModal ? "inline-block" : "inline-flex",
+    padding: isModal ? "4px 10px" : "3px 8px",
+    borderRadius: "8px",
+    alignItems: "center",
+    gap: "4px"
+  };
+};
+
 export default function Journal() {
   const { addNotification } = useNotification();
   const { triggerCrisis, setEmailSent } = useCrisis();
@@ -43,6 +76,7 @@ export default function Journal() {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
   const [updatingId, setUpdatingId] = useState(null);
+  const [viewingEntry, setViewingEntry] = useState(null);
 
   useEffect(() => { loadEntries(); }, []);
 
@@ -53,10 +87,10 @@ export default function Journal() {
       setEntries(res.entries || []);
     } catch {
       setEntries([
-        { _id: "d1", text: "Feeling grateful today, the sun was so warm and welcoming.", mood: "happy", score: .84, createdAt: new Date(Date.now() - 86400000).toISOString() },
-        { _id: "d2", text: "Had a rough meeting, felt anxious about the upcoming deadline.", mood: "anxious", score: .42, createdAt: new Date(Date.now() - 172800000).toISOString() },
-        { _id: "d3", text: "Spent time with family, really grounding and peaceful.", mood: "calm", score: .76, createdAt: new Date(Date.now() - 259200000).toISOString() },
-        { _id: "d4", text: "Couldn't sleep last night, feeling a bit drained today.", mood: "sad", score: .35, createdAt: new Date(Date.now() - 345600000).toISOString() },
+        { _id: "d1", text: "Feeling grateful today, the sun was so warm and welcoming.", mood: "happy", score: 1, createdAt: new Date(Date.now() - 86400000).toISOString() },
+        { _id: "d2", text: "Had a rough meeting, felt anxious about the upcoming deadline.", mood: "anxious", score: -1, createdAt: new Date(Date.now() - 172800000).toISOString() },
+        { _id: "d3", text: "Spent time with family, really grounding and peaceful.", mood: "calm", score: 1, createdAt: new Date(Date.now() - 259200000).toISOString() },
+        { _id: "d4", text: "Couldn't sleep last night, feeling a bit drained today.", mood: "sad", score: -1, createdAt: new Date(Date.now() - 345600000).toISOString() },
       ]);
     } finally { setLoading(false); }
   };
@@ -110,7 +144,7 @@ export default function Journal() {
       else if (lower.match(/calm|peace|relax|content|serene/)) mood = "calm";
 
       const m = getMeta(mood);
-      const analysis = { mood, score: mood === "happy" ? .82 : mood === "calm" ? .72 : mood === "neutral" ? .52 : mood === "anxious" ? .3 : mood === "sad" ? .28 : .22, suggestion: SUGGESTIONS[mood] };
+      const analysis = { mood, score: mood === "happy" ? 1 : mood === "calm" ? 1 : mood === "neutral" ? 0 : -1, suggestion: SUGGESTIONS[mood] };
       setResult(analysis);
       setText("");
 
@@ -176,7 +210,7 @@ export default function Journal() {
       else if (lower.match(/angry|furious|frustrated|mad|rage/)) mood = "angry";
       else if (lower.match(/calm|peace|relax|content|serene/)) mood = "calm";
       const m = getMeta(mood);
-      const analysis = { mood, score: mood === "happy" ? 0.82 : mood === "calm" ? 0.72 : mood === "neutral" ? 0.52 : mood === "anxious" ? 0.3 : mood === "sad" ? 0.28 : 0.22, suggestion: SUGGESTIONS[mood] };
+      const analysis = { mood, score: mood === "happy" ? 1 : mood === "calm" ? 1 : mood === "neutral" ? 0 : -1, suggestion: SUGGESTIONS[mood] };
 
       const fallbackEntry = {
         _id: id,
@@ -273,13 +307,13 @@ export default function Journal() {
             ) : entries.slice(0, 4).map(e => {
               const m = getMeta(e.mood);
               return (
-                <div className="entry-item" key={e._id} style={{ borderRadius: 13 }}>
+                <div className="entry-item" key={e._id} style={{ borderRadius: 13 }} onClick={() => setViewingEntry(e)}>
                   <div className="entry-dot" style={{ background: m.color }} />
                   <div>
                     <div className="entry-dt">{new Date(e.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}</div>
                     <div className="entry-prev">{e.text}</div>
                     <div className="entry-emo" style={{ color: m.color }}>
-                      {m.emoji} {e.mood} · {Math.round((e.score || .5) * 100)}/100
+                      {m.emoji} {e.mood} · {getDisplayPercentage(e.score, e.mood)}%
                     </div>
                   </div>
                 </div>
@@ -301,18 +335,23 @@ export default function Journal() {
               const isEditing = editingId === entry._id;
               const isUpdating = updatingId === entry._id;
               return (
-                <div className="card entry-card" key={entry._id} style={{ animationDelay: `${i * .05}s`, borderColor: `${m.color}30` }}>
+                <div
+                  className="card entry-card"
+                  key={entry._id}
+                  style={{ animationDelay: `${i * .05}s`, borderColor: `${m.color}30` }}
+                  onClick={() => { if (!isEditing) setViewingEntry(entry); }}
+                >
                   <div className="entry-card-top">
                     <span className="entry-card-emoji">{m.emoji}</span>
-                    <span className="chip" style={{ background: `${m.color}18`, color: m.color, fontSize: "11px" }}>
-                      {entry.mood} · {Math.round((entry.score || .5) * 100)}%
+                    <span className="chip" style={getChipStyle(m.color)}>
+                      {entry.mood} · {getDisplayPercentage(entry.score, entry.mood)}%
                     </span>
                     <div style={{ display: "flex", gap: "6px", alignItems: "center", marginLeft: "auto" }}>
                       <span className="entry-card-date">{new Date(entry.createdAt).toLocaleDateString()}</span>
                       {!isEditing && (
                         <button
                           className="card-edit-btn"
-                          onClick={() => { setEditingId(entry._id); setEditText(entry.text); }}
+                          onClick={(e) => { e.stopPropagation(); setEditingId(entry._id); setEditText(entry.text); }}
                           title="Edit Entry"
                         >
                           ✏️
@@ -355,11 +394,40 @@ export default function Journal() {
                     <p className="entry-card-text">{entry.text}</p>
                   )}
                   <div className="entry-score-bar">
-                    <div className="entry-score-fill" style={{ width: `${(entry.score || .5) * 100}%`, background: m.color }} />
+                    <div className="entry-score-fill" style={{ width: `${(entry.score + 1) * 50}%`, background: m.color }} />
                   </div>
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* DETAIL MODAL */}
+      {viewingEntry && (
+        <div className="entry-modal-overlay" onClick={() => setViewingEntry(null)}>
+          <div className="entry-modal" onClick={e => e.stopPropagation()}>
+            <button className="entry-modal-close" onClick={() => setViewingEntry(null)}>×</button>
+            <div className="entry-modal-header">
+              <span className="entry-modal-emoji">{getMeta(viewingEntry.mood).emoji}</span>
+              <div>
+                <span className="chip" style={getChipStyle(getMeta(viewingEntry.mood).color, true)}>
+                  {viewingEntry.mood} · {getDisplayPercentage(viewingEntry.score, viewingEntry.mood)}%
+                </span>
+                <div className="entry-modal-date">
+                  📅 {new Date(viewingEntry.createdAt).toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </div>
+              </div>
+            </div>
+            <div className="entry-modal-body">
+              <p className="entry-modal-text">{viewingEntry.text}</p>
+            </div>
+            <div className="entry-modal-footer">
+              <div className="entry-modal-suggestion">
+                <strong>Reflective Suggestion</strong>
+                <p>{viewingEntry.suggestion || SUGGESTIONS[viewingEntry.mood?.toLowerCase()] || "Take a deep breath and acknowledge your feelings. Reflecting on your state of mind is a powerful step towards emotional well-being."}</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

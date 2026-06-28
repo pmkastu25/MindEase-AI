@@ -33,7 +33,7 @@ router.get("/stats", auth, async (req,res) => {
     chats.forEach(c => {
       allItems.push({
         type: "chat",
-        score: c.score || 0.5,
+        score: c.score !== undefined ? c.score : 0,
         mood: c.mood?.toLowerCase() || "neutral",
         createdAt: c.createdAt
       });
@@ -61,24 +61,12 @@ router.get("/stats", auth, async (req,res) => {
 
     // 2. Helper to map score to mood based on proximity to standard mood scores
     const mapScoreToMood = (score) => {
-      const moods = [
-        { name: "happy", val: 0.82 },
-        { name: "calm", val: 0.72 },
-        { name: "neutral", val: 0.52 },
-        { name: "anxious", val: 0.3 },
-        { name: "sad", val: 0.27 },
-        { name: "angry", val: 0.24 }
-      ];
-      let closest = moods[0];
-      let minDiff = Math.abs(score - closest.val);
-      for (let i = 1; i < moods.length; i++) {
-        const diff = Math.abs(score - moods[i].val);
-        if (diff < minDiff) {
-          minDiff = diff;
-          closest = moods[i];
-        }
-      }
-      return closest.name;
+      if (score >= 0.5) return "happy";
+      if (score > 0.1) return "calm";
+      if (score > -0.2) return "neutral";
+      if (score > -0.5) return "anxious";
+      if (score > -0.8) return "sad";
+      return "angry";
     };
 
     // 3. Mood Breakdown (Percentages)
@@ -93,33 +81,45 @@ router.get("/stats", auth, async (req,res) => {
       pct: Math.round((count / totalItemsCount) * 100)
     }));
 
-    // 4. Mood History (Daily Scores and mapped moods)
+    // 4. Mood History (Daily Scores and mapped moods grouped chronologically)
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const dayMap = {};
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const groupMap = {};
 
     allItems.forEach(item => {
       const d = new Date(item.createdAt);
-      let key;
-      if (rangeDays <= 7) {
-        key = days[d.getDay()];
-      } else if (rangeDays <= 30) {
-        key = `${d.getMonth() + 1}/${d.getDate()}`;
+      let groupKey;
+      if (rangeDays <= 30) {
+        groupKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       } else {
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        key = months[d.getMonth()];
+        groupKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       }
 
-      if (!dayMap[key]) {
-        dayMap[key] = { scores: [], date: key };
+      if (!groupMap[groupKey]) {
+        groupMap[groupKey] = { scores: [], dateObj: d };
       }
-      dayMap[key].scores.push(item.score);
+      groupMap[groupKey].scores.push(item.score);
     });
 
-    const moodHistory = Object.values(dayMap).map(d => {
+    const sortedKeys = Object.keys(groupMap).sort();
+
+    const moodHistory = sortedKeys.map(key => {
+      const d = groupMap[key];
+      const dateObj = d.dateObj;
       const avgScore = d.scores.reduce((s, x) => s + x, 0) / d.scores.length;
       const domMood = mapScoreToMood(avgScore);
+
+      let dateLabel;
+      if (rangeDays <= 7) {
+        dateLabel = days[dateObj.getDay()];
+      } else if (rangeDays <= 30) {
+        dateLabel = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+      } else {
+        dateLabel = months[dateObj.getMonth()];
+      }
+
       return {
-        date: d.date,
+        date: dateLabel,
         score: avgScore,
         mood: domMood
       };
@@ -214,7 +214,7 @@ async function getHeatmapData(userId) {
   };
 
   mJournals.forEach(j => addDaily(j.createdAt, j.score));
-  mChats.forEach(c => addDaily(c.createdAt, c.score || 0.5));
+  mChats.forEach(c => addDaily(c.createdAt, c.score !== undefined ? c.score : 0));
 
   const startDayOfWeek = startOfMonth.getDay();
   const daysInMonth = endOfMonth.getDate();
@@ -229,7 +229,7 @@ async function getHeatmapData(userId) {
       const avg = scores.reduce((s, x) => s + x, 0) / scores.length;
       heatmap.push(Number(avg.toFixed(2)));
     } else {
-      heatmap.push(-1);
+      heatmap.push(-999);
     }
   }
 
