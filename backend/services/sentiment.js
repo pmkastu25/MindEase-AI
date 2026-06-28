@@ -1,12 +1,12 @@
 const axios = require("axios");
 
 const SUGGESTIONS = {
-  greet:   "I'm here to support you. Feel free to check in by selecting an emotion or writing a journal entry.",
-  happy:   "Your positivity is wonderful! Savour this feeling and consider gratitude journaling.",
-  calm:    "This grounded state is precious. Use this clarity to reflect or plan something meaningful.",
-  sad:     "It's okay to feel sad. Offer yourself the kindness you would give a dear friend.",
+  greet: "I'm here to support you. Feel free to check in by selecting an emotion or writing a journal entry.",
+  happy: "Your positivity is wonderful! Savour this feeling and consider gratitude journaling.",
+  calm: "This grounded state is precious. Use this clarity to reflect or plan something meaningful.",
+  sad: "It's okay to feel sad. Offer yourself the kindness you would give a dear friend.",
   anxious: "Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s. Then name 5 things you can see.",
-  angry:   "Anger signals an unmet need. Brisk movement helps process this energy safely.",
+  angry: "Anger signals an unmet need. Brisk movement helps process this energy safely.",
   neutral: "A balanced state is a good foundation. Check in — is there anything needing attention?",
 };
 
@@ -15,27 +15,27 @@ const ruleBased = (text) => {
   const l = text.toLowerCase();
 
   if (l.match(/suicid|kill myself|end my life|don't want to live|not worth living|self.harm|hurt myself|cutting|self.destruct/))
-    return { mood:"suicidal", score:.08, emotions:["crisis"], is_crisis: true };
+    return { mood: "suicidal", score: .08, emotions: ["crisis"], is_crisis: true };
 
   if (l.match(/^(hi|hello|hey|hey there|greetings|good morning|good afternoon|good evening|wassup|yo|hii|heyy)(?:\s|[.!?]|$)/i))
-    return { mood:"greet", score:.5, emotions:["neutral"] };
+    return { mood: "greet", score: .5, emotions: ["neutral"] };
 
   if (l.match(/happy|joy|wonderful|excited|love|great|fantastic/))
-    return { mood:"happy", score:.82, emotions:["joy","happiness"] };
+    return { mood: "happy", score: .82, emotions: ["joy", "happiness"] };
 
   if (l.match(/sad|depress|cry|lonely|hurt|hopeless|heartbroke|breakup|grief|mourn/))
-    return { mood:"sad", score:.27, emotions:["sadness"] };
+    return { mood: "sad", score: .27, emotions: ["sadness"] };
 
   if (l.match(/anxi|stress|worry|nervous|panic|overwhelm|scared|afraid|tension|fear/))
-    return { mood:"anxious", score:.3, emotions:["anxiety","worry"] };
+    return { mood: "anxious", score: .3, emotions: ["anxiety", "worry"] };
 
   if (l.match(/angry|furious|frustrated|mad|rage|fight|argument|quarrel|qwarrel|conflict|clash|disagree|dispute|annoy/))
-    return { mood:"angry", score:.24, emotions:["anger"] };
+    return { mood: "angry", score: .24, emotions: ["anger"] };
 
   if (l.match(/calm|peace|relax|content|serene/))
-    return { mood:"calm", score:.72, emotions:["calm"] };
+    return { mood: "calm", score: .72, emotions: ["calm"] };
 
-  return { mood:"neutral", score:.52, emotions:["neutral"] };
+  return { mood: "neutral", score: .52, emotions: ["neutral"] };
 };
 
 const analyze = async (text) => {
