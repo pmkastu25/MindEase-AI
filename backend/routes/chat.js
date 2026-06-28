@@ -25,7 +25,7 @@ router.post("/", auth, async (req, res) => {
 
     let reply = "";
     let methodUsed = "";
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "enter_key" ? process.env.GEMINI_API_KEY : null;
 
     const lower = message.toLowerCase().trim();
 
@@ -111,7 +111,7 @@ Assistant:`;
             const r = await axios.post(
               `${rasaUrl}/webhooks/rest/webhook`,
               { sender: req.user._id.toString(), message },
-              { timeout: 5000 }
+              { timeout: 15000 }
             );
 
             botMessages = Array.isArray(r.data) ? r.data : [];
