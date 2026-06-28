@@ -70,8 +70,9 @@ Messages sent to the virtual assistant are routed through a five-level priority 
 * **Notification History**: Persistent log of app achievements, mood alerts, and milestone updates.
 
 ### 6. Geolocation Therapist Directory
-* **Location Mapping**: Queries open therapist APIs or falls back to a local mock database.
-* **OSM Geocoding**: Uses OpenStreetMap's Nominatim API to geocode city searches, displaying therapists within a 20km radius and providing direct links to clinic locations on Google Maps.
+* **Interactive Map Integration**: Renders clinic locations on an interactive Mapbox GL map utilizing a clean light style. Displays therapist markers alongside the user's location pin.
+* **Mapbox Density Heatmap**: Visualizes therapist density dynamically as the user zooms and pans across clinic clusters.
+* **OSM Geocoding**: Uses OpenStreetMap's Nominatim API to geocode city search queries, focusing the map to the searched city coordinate and calculating nearby clinics within a 20km radius.
 
 ### 7. Emergency Safety Alert Workflow
 * **Distress Monitoring**: Scans chat messages and journal entries for self-harm patterns.
@@ -114,6 +115,7 @@ SMTP_PASS=your_smtp_password
 Create a `.env` file inside the `frontend` folder:
 ```env
 VITE_API_URL=http://localhost:5001/api
+VITE_MAPBOX_ACCESS_TOKEN=your_mapbox_access_token
 ```
 
 ---
@@ -156,7 +158,7 @@ pip install -r requirements.txt
 # Train the NLU models (creates model files)
 rasa train
 
-# Start the custom actions server (runs on port 5055)
+# Start the custom actions server (runs on port 5505 - wait, actions runs on 5055)
 rasa run actions
 
 # Start core NLU webhook server (in a separate window - runs on port 5006)
@@ -174,5 +176,6 @@ npm run dev
 
 ## 🔒 Security & Deployment Directives
 * **Static Assets**: Compile the React application (`npm run build`) and serve static directories using an Nginx web proxy.
-* **WSGI Server**: Run the Python Flask service behind **Gunicorn** in production (`gunicorn --bind 0.0.0.0:5000 apps.app:app`) instead of using Flask's debug mode.
+* **ASGI Server**: Run the Python FastAPI service behind **Uvicorn** (or Gunicorn with Uvicorn workers) in production instead of debug mode.
 * **Environment Safeguards**: In production mode (`NODE_ENV=production`), missing database connection strings or secret variables will block the server from starting to protect security keys.
+* **Clean Terminal Logs**: All server console output (`console.log`, `console.warn`, `console.error`, and python print statements) are kept emoji-free to ensure clean, consistent rendering in text-only cloud log aggregators (e.g. Render, Vercel, Hugging Face) and terminal pagers.
