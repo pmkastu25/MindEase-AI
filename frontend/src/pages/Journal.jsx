@@ -63,6 +63,24 @@ const getChipStyle = (color, isModal = false) => {
   };
 };
 
+const limitWords = (input, maxWords) => {
+  if (!input) return "";
+  const words = input.split(/(\s+)/);
+  let wordCount = 0;
+  const result = [];
+  for (let i = 0; i < words.length; i++) {
+    const segment = words[i];
+    if (segment.trim().length > 0) {
+      wordCount++;
+    }
+    if (wordCount > maxWords) {
+      break;
+    }
+    result.push(segment);
+  }
+  return result.join("");
+};
+
 export default function Journal() {
   const { addNotification } = useNotification();
   const { triggerCrisis, setEmailSent } = useCrisis();
@@ -258,7 +276,7 @@ export default function Journal() {
           <textarea
             className="journal-textarea"
             value={text}
-            onChange={e => setText(e.target.value.slice(0, 600))}
+            onChange={e => setText(limitWords(e.target.value, 600))}
             placeholder={"Begin writing freely… this is your safe space. MindEase AI will gently analyze the emotions behind your words.\n\nThere are no right or wrong answers — just your truth."}
           />
           {error && <p className="journal-error">{error}</p>}
@@ -364,7 +382,7 @@ export default function Journal() {
                       <textarea
                         className="entry-edit-textarea"
                         value={editText}
-                        onChange={e => setEditText(e.target.value.slice(0, 600))}
+                        onChange={e => setEditText(limitWords(e.target.value, 600))}
                       />
                       <div className="entry-edit-actions">
                         <button
