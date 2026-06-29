@@ -6,9 +6,9 @@ function startDailyEngagementCron() {
   // Schedule a task to run every minute to support per-user custom reminder times
   cron.schedule('* * * * *', async () => {
     const now = new Date();
-    // Get current local time formatted as HH:MM
-    const currentHour = String(now.getHours()).padStart(2, '0');
-    const currentMinute = String(now.getMinutes()).padStart(2, '0');
+    // Get current UTC time formatted as HH:MM
+    const currentHour = String(now.getUTCHours()).padStart(2, '0');
+    const currentMinute = String(now.getUTCMinutes()).padStart(2, '0');
     const currentTimeStr = `${currentHour}:${currentMinute}`;
 
     try {
