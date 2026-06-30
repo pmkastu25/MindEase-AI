@@ -56,6 +56,11 @@ export default function AuthPage() {
       } else {
         // Filter out blank parent emails
         const filteredParents = parentalContacts.filter(c => c.email.trim());
+        if (filteredParents.length === 0) {
+          setError("At least one Parent/Guardian emergency email is required");
+          setLoading(false);
+          return;
+        }
         const filteredOthers  = otherContacts.filter(c => c.email.trim());
         await register(form.name, form.email, form.password, form.gender, filteredParents, filteredOthers);
       }
@@ -191,7 +196,7 @@ export default function AuthPage() {
                     </p>
                     {parentalContacts.map((c, i) => (
                       <div className="contact-row" key={i}>
-                        <div className="contact-row-label">Parent / Guardian {i + 1}</div>
+                        <div className="contact-row-label">Parent / Guardian {i + 1} {i === 0 && <span style={{ color: "#c47880" }}>*</span>}</div>
                         <div className="contact-row-inputs">
                           <input
                             className="input-field contact-email-input"
@@ -199,6 +204,7 @@ export default function AuthPage() {
                             placeholder="parent@example.com"
                             value={c.email}
                             onChange={e => updateParentEmail(i, e.target.value)}
+                            required={i === 0}
                           />
                           {parentalContacts.length > 1 && (
                             <button

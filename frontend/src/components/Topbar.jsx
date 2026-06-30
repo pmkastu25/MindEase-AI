@@ -147,10 +147,15 @@ export default function Topbar({ activePage, userName, mobileNavOpen, setMobileN
 
   const handleSaveProfile = async () => {
     if (!nameInput.trim()) return;
+    const filteredParents = parentalContacts.filter(c => c.email.trim());
+    if (filteredParents.length === 0) {
+      setSaveMessage("✕ Parent email required");
+      setTimeout(() => setSaveMessage(""), 3000);
+      return;
+    }
     setSaving(true);
     setSaveMessage("");
     try {
-      const filteredParents = parentalContacts.filter(c => c.email.trim());
       const filteredOthers  = otherContacts.filter(c => c.email.trim());
       await updatePreferences(nameInput, emailNotifToggle, reminderTimeInput, genderInput, filteredParents, filteredOthers);
       setSaveMessage("✓ Saved!");
@@ -342,7 +347,7 @@ export default function Topbar({ activePage, userName, mobileNavOpen, setMobileN
                     </div>
 
                     <div style={{ fontSize: "11px", fontWeight: "600", color: "var(--soft)", textTransform: "uppercase", marginBottom: "6px" }}>
-                      👪 Parents / Guardians
+                      👪 Parents / Guardians <span style={{ color: "#c47880" }}>*</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "10px" }}>
                       {parentalContacts.map((c, i) => (
@@ -354,6 +359,7 @@ export default function Topbar({ activePage, userName, mobileNavOpen, setMobileN
                             value={c.email}
                             onChange={(e) => updateParentEmail(i, e.target.value)}
                             placeholder="parent@example.com"
+                            required={i === 0}
                           />
                           {parentalContacts.length > 1 && (
                             <button
@@ -444,7 +450,7 @@ export default function Topbar({ activePage, userName, mobileNavOpen, setMobileN
                       </button>
                     </div>
                     {saveMessage && (
-                      <span className={`save-status-msg ${saveMessage.includes("Error") ? "err" : "success"}`} style={{ marginTop: "6px", display: "inline-block" }}>
+                      <span className={`save-status-msg ${saveMessage.includes("Error") || saveMessage.startsWith("✕") ? "err" : "success"}`} style={{ marginTop: "6px", display: "inline-block" }}>
                         {saveMessage}
                       </span>
                     )}

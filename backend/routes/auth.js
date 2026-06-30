@@ -25,6 +25,10 @@ router.post("/register", async (req, res) => {
     if (!name || !email || !password) return res.status(400).json({ message: "All fields required" });
     if (await User.findOne({ email })) return res.status(400).json({ message: "Account already exists" });
 
+    if (!parentalContacts || !Array.isArray(parentalContacts) || parentalContacts.length === 0 || !parentalContacts.some(c => c.email && c.email.trim())) {
+      return res.status(400).json({ message: "At least one Parent/Guardian emergency email is required" });
+    }
+
     const user = await User.create({
       name, email, password,
       gender: gender || "Prefer not to say",
@@ -56,7 +60,12 @@ router.put("/preferences", auth, async (req, res) => {
     if (emailNotifications !== undefined) req.user.emailNotifications = emailNotifications;
     if (reminderTime !== undefined) req.user.reminderTime = reminderTime;
     if (gender !== undefined) req.user.gender = gender;
-    if (parentalContacts !== undefined) req.user.parentalContacts = parentalContacts;
+    if (parentalContacts !== undefined) {
+      if (!Array.isArray(parentalContacts) || parentalContacts.length === 0 || !parentalContacts.some(c => c.email && c.email.trim())) {
+        return res.status(400).json({ message: "At least one Parent/Guardian emergency email is required" });
+      }
+      req.user.parentalContacts = parentalContacts;
+    }
     if (otherContacts !== undefined) req.user.otherContacts = otherContacts;
 
     await req.user.save();
