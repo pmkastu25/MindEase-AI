@@ -122,21 +122,14 @@ VITE_MAPBOX_ACCESS_TOKEN=your_mapbox_access_token
 
 ## ⚡ Execution Instructions (Local Setup)
 
-### 1. Start MongoDB
-Ensure your local database engine is active before executing the server code:
-```bash
-# Windows command prompt
-net start MongoDB
-```
-
-### 2. Gateway API Setup
+### 1. Gateway API Setup
 ```bash
 cd backend
 npm install
 npm run dev
 ```
 
-### 3. Classification Service Setup
+### 2. Classification Service Setup
 Ensure Python 3.10 is active:
 ```bash
 cd ml_service
@@ -146,7 +139,7 @@ pip install -r requirements.txt
 python.exe apps/app.py
 ```
 
-### 4. Rasa Conversational NLU Setup
+### 3. Rasa Conversational NLU Setup
 Ensure a clean **Python 3.10** environment is active (C++ Build Tools are required on Windows):
 ```bash
 cd rasa-bot
@@ -165,7 +158,7 @@ rasa run actions
 rasa run -m models --enable-api --cors "*" --port 5006
 ```
 
-### 5. Client SPA Setup
+### 4. Client SPA Setup
 ```bash
 cd frontend
 npm install
