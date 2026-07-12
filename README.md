@@ -1,6 +1,6 @@
-# 🌿 MindEase AI v2 — Architectural Specifications & Setup Guide
+# 🌿 MindEase AI — Architectural Specifications & Setup Guide
 
-MindEase AI v2 is a modular, triple-tier web application designed to support personal emotional tracking, cognitive behavioral reflections, and immediate mental health resources. The system is built around a botanical design system utilizing glassmorphic components to offer a peaceful, low-friction user experience.
+MindEase AI is a modular, triple-tier web application designed to support personal emotional tracking, cognitive behavioral reflections, and immediate mental health resources. The system is built around a botanical design system utilizing glassmorphic components to offer a peaceful, low-friction user experience.
 
 ---
 ## Deployment:
