@@ -178,4 +178,3 @@ npm run dev
 * **Static Assets**: Compile the React application (`npm run build`) and serve static directories using an Nginx web proxy.
 * **ASGI Server**: Run the Python FastAPI service behind **Uvicorn** (or Gunicorn with Uvicorn workers) in production instead of debug mode.
 * **Environment Safeguards**: In production mode (`NODE_ENV=production`), missing database connection strings or secret variables will block the server from starting to protect security keys.
-* **Clean Terminal Logs**: All server console output (`console.log`, `console.warn`, `console.error`, and python print statements) are kept emoji-free to ensure clean, consistent rendering in text-only cloud log aggregators (e.g. Render, Vercel, Hugging Face) and terminal pagers.
