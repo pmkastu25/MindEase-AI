@@ -133,10 +133,10 @@ npm run dev
 Ensure Python 3.10 is active:
 ```bash
 cd ml_service
-python -m venv venv
-venv\Scripts\activate
+python3.10 -m venv venv
+source venv\Scripts\activate
 pip install -r requirements.txt
-python.exe apps/app.py
+python apps/app.py
 ```
 
 ### 3. Rasa Conversational NLU Setup
