@@ -133,7 +133,7 @@ npm run dev
 Ensure Python 3.10 is active:
 ```bash
 cd ml_service
-python3.10 -m venv venv
+python -m venv venv
 source venv\Scripts\activate
 pip install -r requirements.txt
 python apps/app.py
@@ -143,7 +143,7 @@ python apps/app.py
 Ensure a clean **Python 3.10** environment is active (C++ Build Tools are required on Windows):
 ```bash
 cd rasa-bot
-python -m venv venv
+python3.10 -m venv venv
 venv\Scripts\activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
