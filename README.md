@@ -100,10 +100,6 @@ OLLAMA_MODEL=llama3
 GEMINI_API_KEY=your_google_gemini_api_key
 RASA_URL=http://localhost:5005
 
-# Clinician Directory
-THERAPIST_API_URL=https://api.example.com/therapists
-THERAPIST_API_KEY=your_therapist_api_token
-
 # SMTP Outbound Email Setup
 SMTP_HOST=smtp.mailtrap.io
 SMTP_PORT=2525
