@@ -4,7 +4,7 @@ MindEase AI is a modular, triple-tier web application designed to support person
 
 ---
 ## Deployment:
-* Vercel (Frontend): https://mind-ease-ai-git-main-acers1.vercel.app/
+* Vercel (Frontend): https://mind-ease-ai-five.vercel.app/
 * Render (Backend): https://mindease-ai-k84e.onrender.com
 * Hugging Face Spaces (ml-service): https://pmkastu25-mindease-ml-service.hf.space
 * Hugging Face Spaces - rasa url (rasa-chatbot): https://pmkastu25-mindease-rasabot.hf.space
